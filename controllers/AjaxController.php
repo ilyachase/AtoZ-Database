@@ -24,7 +24,7 @@ class AjaxController extends Controller
 				'class'   => VerbFilter::className(),
 				'actions' => [
 					'keywordautocomplete' => [ 'get' ],
-//					'getcount'            => [ 'post' ],
+					'getcount'            => [ 'post' ],
 				],
 			],
 		];
@@ -60,7 +60,6 @@ class AjaxController extends Controller
 
 	public function actionGetcount()
 	{
-//		d(\Yii::$app->request->post());
-		return $this->_client->getCount();
+		return $this->_client->getCount( \Yii::$app->request->post( 'keywords' ) );
 	}
 }

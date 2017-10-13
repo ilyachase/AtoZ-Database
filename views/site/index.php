@@ -14,7 +14,7 @@ $this->title = 'Searcher';
 		<div class="panel-body">
 			<button type="button" id="search" class="btn btn-success"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search</button>
 			<div class="count-wrap">
-				<p>Your Count<br><span id="count">1000</span></p>
+				<p>Your Count<br><span id="count">0</span></p>
 			</div>
 			<button type="button" id="update_count" class="btn btn-default"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Update Count</button>
 			<br/>

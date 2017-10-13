@@ -56,4 +56,32 @@ $( function () {
 	$( document ).on( 'click', '#selected_keywords .list-group-item', function () {
 		$( this ).remove();
 	} );
+
+	function get_selected_keywords()
+	{
+		var result = [];
+
+		$( '#selected_keywords .list-group-item' ).each( function ( k, v ) {
+			result.push( $( v ).data( 'value' ) );
+		} );
+
+		return result;
+	}
+
+	$( '#update_count' ).click( function () {
+		$.ajax( {
+			method    : 'post',
+			url       : '/ajax/getcount',
+			data      : {'keywords': get_selected_keywords()},
+			beforeSend: function () {
+				$( '#loader' ).show();
+			},
+			success   : function ( data ) {
+				$( '#count' ).text( data );
+			},
+			complete  : function () {
+				$( '#loader' ).hide();
+			}
+		} );
+	} );
 } );
