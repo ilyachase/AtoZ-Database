@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Client;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 
 class AjaxController extends Controller
@@ -18,6 +19,13 @@ class AjaxController extends Controller
 		return [
 			'error' => [
 				'class' => 'yii\web\ErrorAction',
+			],
+			'verbs' => [
+				'class'   => VerbFilter::className(),
+				'actions' => [
+					'keywordautocomplete' => [ 'get' ],
+//					'getcount'            => [ 'post' ],
+				],
 			],
 		];
 	}
@@ -48,5 +56,11 @@ class AjaxController extends Controller
 	public function actionKeywordautocomplete( $keyword )
 	{
 		return $this->_client->getKeywordsAutocomplete( $keyword );
+	}
+
+	public function actionGetcount()
+	{
+//		d(\Yii::$app->request->post());
+		return $this->_client->getCount();
 	}
 }

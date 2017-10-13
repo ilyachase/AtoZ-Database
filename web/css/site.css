@@ -211,3 +211,7 @@ a.desc:after
 	overflow-x: hidden;
 	overflow-y: auto;
 }
+
+.search-wrap .keywords-list .list-group-item {
+	cursor: pointer;
+}

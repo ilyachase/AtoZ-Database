@@ -26,10 +26,10 @@ $this->title = 'Searcher';
 			<h3 class="panel-title">Keyword / Business Type search</h3>
 		</div>
 		<div class="panel-body">
-			<form>
+			<form id="keyword_form">
 				<label for="input_keyword">Enter Keyword / Business Type</label>
 				<div class="form-inline">
-					<input type="email" class="form-control" id="input_keyword" placeholder="keyword">
+					<input type="text" class="form-control" id="input_keyword" placeholder="keyword">
 					&nbsp;&nbsp;<i class="glyphicon glyphicon-refresh gly-spin" id="loader" style="display: none;"></i>
 				</div>
 				<br/>
@@ -38,12 +38,7 @@ $this->title = 'Searcher';
 
 				</ul>
 				<label>Select Keyword / Business Type(s)</label>
-				<ul class="list-group">
-					<li class="list-group-item">Cras justo odio</li>
-					<li class="list-group-item">Dapibus ac facilisis in</li>
-					<li class="list-group-item">Morbi leo risus</li>
-					<li class="list-group-item">Porta ac consectetur ac</li>
-					<li class="list-group-item">Vestibulum at eros</li>
+				<ul class="list-group keywords-list" id="selected_keywords">
 				</ul>
 			</form>
 		</div>

@@ -1,4 +1,8 @@
 $( function () {
+	$( '#keyword_form' ).submit( function () {
+		return false;
+	} );
+
 	$( "#input_keyword" ).bind( 'input', function () {
 		var keyword = $( this ).val();
 
@@ -27,5 +31,29 @@ $( function () {
 				}
 			} );
 		}, 750 ) );
+	} );
+
+	$( document ).on( 'click', '#suggested_keywords .list-group-item', function () {
+		var $selected_keywords = $( '#selected_keywords' ),
+			already_have = false,
+			adding_value = $( this ).data( 'value' );
+
+		$( '.list-group-item', $selected_keywords ).each( function ( k, v ) {
+			if ( $( v ).data( 'value' ) === adding_value )
+				already_have = true;
+		} );
+
+		if ( already_have )
+			return;
+
+		$selected_keywords.append( $( '<li/>', {
+			'class'     : 'list-group-item',
+			'text'      : $( this ).text(),
+			'data-value': adding_value
+		} ) );
+	} );
+
+	$( document ).on( 'click', '#selected_keywords .list-group-item', function () {
+		$( this ).remove();
 	} );
 } );
