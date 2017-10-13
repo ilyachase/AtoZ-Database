@@ -2,6 +2,11 @@
 
 /* @var $this yii\web\View */
 
+$this->registerJsFile(
+	'@web/js/index.js',
+	[ 'depends' => [ \yii\web\JqueryAsset::className() ] ]
+);
+
 $this->title = 'Searcher';
 ?>
 <div class="search-wrap">
@@ -22,17 +27,15 @@ $this->title = 'Searcher';
 		</div>
 		<div class="panel-body">
 			<form>
-				<div class="form-group">
-					<label for="input_keyword">Enter Keyword / Business Type</label>
+				<label for="input_keyword">Enter Keyword / Business Type</label>
+				<div class="form-inline">
 					<input type="email" class="form-control" id="input_keyword" placeholder="keyword">
+					&nbsp;&nbsp;<i class="glyphicon glyphicon-refresh gly-spin" id="loader" style="display: none;"></i>
 				</div>
+				<br/>
 				<label>Select Keyword / Business Type(s)</label>
-				<ul class="list-group">
-					<li class="list-group-item">Cras justo odio</li>
-					<li class="list-group-item">Dapibus ac facilisis in</li>
-					<li class="list-group-item">Morbi leo risus</li>
-					<li class="list-group-item">Porta ac consectetur ac</li>
-					<li class="list-group-item">Vestibulum at eros</li>
+				<ul class="list-group keywords-list" id="suggested_keywords">
+
 				</ul>
 				<label>Select Keyword / Business Type(s)</label>
 				<ul class="list-group">

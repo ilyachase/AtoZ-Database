@@ -27,11 +27,9 @@ class Client
 				CURLOPT_COOKIEJAR      => $cookiePath,
 				CURLOPT_COOKIEFILE     => $cookiePath,
 			] );
-
-		$this->_checkLogin();
 	}
 
-	private function _checkLogin()
+	public function checkLogin()
 	{
 		$this->_curl->get( 'https://www.atozdatabases.com/search' );
 		if ( strpos( $this->_curl->response, 'WHAT YOUR PATRONS WANT' ) === false )
@@ -64,5 +62,22 @@ class Client
 				'libraryCardId' => 11812015896843,
 			] )
 			->post( 'https://www.atozdatabases.com/librarycardsignin' );
+	}
+
+	/**
+	 * @param string $keyword
+	 *
+	 * @return mixed
+	 */
+	public function getKeywordsAutocomplete( $keyword )
+	{
+		$this->_curl->setPostParams( [
+			'field'    => 'SIC_Description',
+			'criteria' => trim( $keyword ),
+			'database' => 'business',
+			'page'     => 'search',
+		] )->post( 'https://www.atozdatabases.com/ajax/rpc/getReferenceCallData.htm?' );
+
+		return json_decode( $this->_curl->response)->jsonarray;
 	}
 }
