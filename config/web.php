@@ -44,6 +44,9 @@ $config = [
 			'showScriptName'      => false,
 			'enableStrictParsing' => false,
 		],
+		'fileCache' => [
+			'class' => 'yii\caching\FileCache',
+		],
 	],
 	'params'     => $params,
 ];

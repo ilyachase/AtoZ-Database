@@ -63,10 +63,17 @@ class SiteController extends Controller
 	 */
 	public function actionSearch( array $keywords, $page = 1 )
 	{
-		$client = new Client();
-		$client->checkLogin();
+		$cacheKey = __METHOD__ . '/' . sha1( var_export( $keywords, true ) ) . '/' . $page;
 
-		$data = $client->getSearchResult( $keywords, $page );
+		$data = \Yii::$app->cache->get( $cacheKey );
+		if ( $data === false )
+		{
+			$client = new Client();
+			$client->checkLogin();
+
+			$data = $client->getSearchResult( $keywords, $page );
+			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
+		}
 
 		return $this->render( 'search', [
 			'totalrecords' => $data->totalrecords,

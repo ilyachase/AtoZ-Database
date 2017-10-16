@@ -32,7 +32,7 @@ class AjaxController extends Controller
 					],
 				],
 			],
-			'verbs' => [
+			'verbs'  => [
 				'class'   => VerbFilter::className(),
 				'actions' => [
 					'keywordautocomplete' => [ 'get' ],
@@ -79,7 +79,16 @@ class AjaxController extends Controller
 	 */
 	public function actionKeywordautocomplete( $keyword )
 	{
-		return $this->_client->getKeywordsAutocomplete( $keyword );
+		$cacheKey = __METHOD__ . '/' . $keyword;
+
+		$data = \Yii::$app->cache->get( $cacheKey );
+		if ( $data === false )
+		{
+			$data = $this->_client->getKeywordsAutocomplete( $keyword );
+			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
+		}
+
+		return $data;
 	}
 
 	/**
@@ -87,6 +96,15 @@ class AjaxController extends Controller
 	 */
 	public function actionGetcount()
 	{
-		return $this->_client->getCount( \Yii::$app->request->post( 'keywords' ) );
+		$cacheKey = __METHOD__ . '/' . sha1( var_export( \Yii::$app->request->post( 'keywords' ), true ) );
+
+		$data = \Yii::$app->cache->get( $cacheKey );
+		if ( $data === false )
+		{
+			$data = $this->_client->getCount( \Yii::$app->request->post( 'keywords' ) );
+			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
+		}
+
+		return $data;
 	}
 }
