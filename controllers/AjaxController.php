@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Client;
+use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 
@@ -14,11 +15,22 @@ class AjaxController extends Controller
 	/**
 	 * @inheritdoc
 	 */
-	public function actions()
+	public function behaviors()
 	{
 		return [
-			'error' => [
-				'class' => 'yii\web\ErrorAction',
+			'access' => [
+				'class' => AccessControl::className(),
+				'rules' => [
+					[
+						'actions' => [ 'login', 'logout' ],
+						'allow'   => true,
+						'roles'   => [ '?' ],
+					],
+					[
+						'allow' => true,
+						'roles' => [ '@' ],
+					],
+				],
 			],
 			'verbs' => [
 				'class'   => VerbFilter::className(),
@@ -26,6 +38,18 @@ class AjaxController extends Controller
 					'keywordautocomplete' => [ 'get' ],
 					'getcount'            => [ 'post' ],
 				],
+			],
+		];
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function actions()
+	{
+		return [
+			'error' => [
+				'class' => 'yii\web\ErrorAction',
 			],
 		];
 	}
