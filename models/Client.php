@@ -100,4 +100,46 @@ class Client
 
 		return json_decode( $this->_curl->response )->count;
 	}
+
+	/**
+	 * @param array $keywords
+	 * @param $page
+	 *
+	 * @return \stdClass
+	 */
+	public function getSearchResult( array $keywords, $page )
+	{
+		$keywordsQuery = '';
+		foreach ( $keywords as $keyword )
+		{
+			$keywordsQuery .= '&Add_SIC_Description=' . urlencode( $keyword );
+		}
+
+		if ( $page == 1 )
+		{
+			$this->_curl
+				->setRequestBody( 'count=---&database=business&search_count=&page=search&searchType=general&searchmode=&mode=&marketingSelect=&cancelSearch=&searchCheckedDetails=&nameTreeView=&selectTreeView=&parentTreeView=&treeMetaField=&nameTreeViewExpenditure=&selectTreeViewExpenditure=&parentTreeViewExpenditure=&treeMetaFieldExpenditure=&Map_proximity=N%2FA&Map_Physical_State=N%2FA&Map_Vendor_State_County=N%2FA&Meta~SIC_Description=on&Meta~Record_Type=on&Ref_Physical_State_Physical_City=Select+a+State&Ref_CBSA_Code=Select+a+State&Ref_Vendor_State_County=Select+a+State&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip_Paste=&Add_Physical_Address=&Add_proximity=&Add_proximity=&Add_proximity=&Ref_SIC_Description=auto&Ref_Advanced_SIC_Keyword=SIC_Description&hid_SIC_Description=auto&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry_Paste=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS_Paste=&Add_Company_Name=&Add_Prefix=-1&Add_First_Name=&Add_Middle_Initial=&Add_Last_Name=&Add_Suffix=-1&Add_Employees_Advanced_From=&Add_Employees_Advanced_To=&Add_SalesAnnualRevenue_Advanced_From=&Add_SalesAnnualRevenue_Advanced_To=&Add_Phone=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code_Paste=&Add_EIN=&Add_URL=&Add_Record_Type=1&countForDownload=' . $keywordsQuery )
+				->post( 'https://www.atozdatabases.com/ajax/search-business-updatecount.htm?persist=yes' );
+
+			$this->_curl
+				->setPostParams( [
+					'database'            => 'business',
+					'page'                => 'search',
+					'removeStateCriteria' => '',
+				] )
+				->post( 'https://www.atozdatabases.com/ajax/search-result.htm' );
+		}
+		else
+		{
+			$this->_curl
+				->setRequestBody( 'database=business&mode=&page=result&dynamicColumn=&selectedRecordCount=0&maxRecordCount=1000&uniqueIdForDetailPage=&searchType=general&currentPage=' . $page . '&combinedsearchType=&resultFrom=&isMap=&corporateLinkageId=&corporateLinkageField=&corporateFamilyCondition=&corporateFamilyRecId=&corporateFamilyUltimateId=&corporateFamilyImmediateId=&marketingSelect=&reverseJob=&printCredits=0&downloadCredits=0&emailCredits=0&recordsPerCred=&isPatronUser=&isBulkDownloadAvailable=&userSearchCount=38849&removeStateCriteria=&findPersonOnResidents=&paginationuppertextbox=2&paginationuppertextbox=2&sort_by=1&then1_by=1&then2_by=1&email_format=pdf&email_level_detail=results_export&page_type=print&format_print=1&level_detail_Print=1&download_format=1&level_detail=1&paginationuppertextbox=' )
+				->post( 'https://www.atozdatabases.com/ajax/search-result-business1.htm' );
+		}
+
+		$result = json_decode( $this->_curl->response );
+		unset( $result->jsonArray[0] );
+		unset( $result->jsonArray[1] );
+
+		return $result;
+	}
 }

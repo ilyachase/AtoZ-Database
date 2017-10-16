@@ -58,6 +58,9 @@ class AjaxController extends Controller
 		return $this->_client->getKeywordsAutocomplete( $keyword );
 	}
 
+	/**
+	 * @return string
+	 */
 	public function actionGetcount()
 	{
 		return $this->_client->getCount( \Yii::$app->request->post( 'keywords' ) );

@@ -84,4 +84,32 @@ $( function () {
 			}
 		} );
 	} );
+
+	$( '#clear_search' ).click( function () {
+		$( '#selected_keywords' ).empty();
+		$( '#count' ).text( '0' );
+
+		return false;
+	} );
+
+	$( '#search' ).click( function () {
+		var queryString = '', $selected_keywords_items = $( '#selected_keywords .list-group-item' );
+
+		if ( $selected_keywords_items.length === 0 )
+		{
+			alert( 'Select keywords first' );
+			return false;
+		}
+
+		$selected_keywords_items.each( function ( k, v ) {
+			if ( queryString === '' )
+				queryString += '?keywords[' + k + ']=';
+			else
+				queryString += '&keywords[' + k + ']=';
+
+			queryString += $( v ).data( 'value' );
+		} );
+
+		window.location.href = '/site/search' + queryString;
+	} );
 } );

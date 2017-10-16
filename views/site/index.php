@@ -18,7 +18,7 @@ $this->title = 'Searcher';
 			</div>
 			<button type="button" id="update_count" class="btn btn-default"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Update Count</button>
 			<br/>
-			<p class="text-center"><a href="">Clear Search</a></p>
+			<p class="text-center"><a href="#" id="clear_search">Clear Search</a></p>
 		</div>
 	</div>
 	<div class="panel panel-default keyword-panel">
