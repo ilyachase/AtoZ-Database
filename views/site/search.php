@@ -8,6 +8,8 @@
  * @var array $rows
  */
 
+use yii\helpers\Html;
+
 $this->registerJsFile(
 	'@web/js/results.js',
 	[ 'depends' => [ \yii\web\JqueryAsset::className() ] ]
@@ -53,7 +55,7 @@ $this->title = 'Results';
 				<tbody>
 				<?php foreach ( $rows as $row ): ?>
 					<tr>
-						<td><?= strip_tags( $row[1] ) ?></td>
+						<td><?= Html::a( strip_tags( $row[1] ), [ '/site/details', 'id' => urlencode( $row[0] ) ] ) ?></td>
 						<td><?= $row[2] ?></td>
 						<td><?= $row[3] ?></td>
 						<td><?= $row[4] ?></td>

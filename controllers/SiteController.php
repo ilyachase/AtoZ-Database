@@ -104,4 +104,12 @@ class SiteController extends Controller
 			'model' => $model,
 		] );
 	}
+
+	public function actionDetails( $id )
+	{
+		$client = new Client();
+		$client->checkLogin();
+
+		$data = $client->getDetails( $id );
+	}
 }

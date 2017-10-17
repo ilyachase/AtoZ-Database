@@ -142,4 +142,93 @@ class Client
 
 		return $result;
 	}
+
+	public function getDetails( $id )
+	{
+		$cookiePath = \Yii::getAlias( "@runtime" ) . DS . 'cookie.txt';
+
+		$this->_curl
+			->setRequestBody( 'accountId=2011000265&database=business&sourceAlias=portlet.business&sourceAliasId=&marketingSelect=&page=search&postAuthType=hpdeux&postAuthAction=&search_count=&searchType=findbusiness&stateCity=&findajob=&findBusinessSearchType=findaPerson&findPersonOnResidents=NO&vi_leftchk_Physical_State_Physical_City=' )
+			->post( 'https://www.atozdatabases.com/usbusiness/search' );
+
+		$this->_curl
+			->setRequestBody( 'page=ttps://www.atozdatabases.com/usbusiness/search' )
+			->post( 'https://www.atozdatabases.com/ajax/getUIErrorMsgs.htm' );
+
+		$this->_curl
+			->setRequestBody( 'database=business&field=Advanced_SIC_Keyword&page=search' )
+			->post( 'https://www.atozdatabases.com/ajax/rpc/getMetadataCall.htm' );
+
+		$this->_curl
+			->setRequestBody( 'field=SIC_Description&criteria=auto&database=business&page=search' )
+			->post( 'https://www.atozdatabases.com/ajax/rpc/getReferenceCallData.htm?' );
+
+		$this->_curl
+			->setRequestBody( '_synchronizerToken=15082177015865946505953374932698&count=---&database=business&search_count=&page=search&searchType=general&searchmode=&mode=&marketingSelect=&cancelSearch=&searchCheckedDetails=&nameTreeView=&selectTreeView=&parentTreeView=&treeMetaField=&nameTreeViewExpenditure=&selectTreeViewExpenditure=&parentTreeViewExpenditure=&treeMetaFieldExpenditure=&Map_proximity=N%2FA&Map_Physical_State=N%2FA&Map_Vendor_State_County=N%2FA&Meta~SIC_Description=on&Meta~Record_Type=on&Ref_Physical_State_Physical_City=Select+a+State&Ref_CBSA_Code=Select+a+State&Ref_Vendor_State_County=Select+a+State&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip_Paste=&Add_Physical_Address=&Add_proximity=&Add_proximity=&Add_proximity=&Ref_SIC_Description=auto&Ref_Advanced_SIC_Keyword=SIC_Description&hid_SIC_Description=auto&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry_Paste=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS_Paste=&Add_Company_Name=&Add_Prefix=-1&Add_First_Name=&Add_Middle_Initial=&Add_Last_Name=&Add_Suffix=-1&Add_Employees_Advanced_From=&Add_Employees_Advanced_To=&Add_SalesAnnualRevenue_Advanced_From=&Add_SalesAnnualRevenue_Advanced_To=&Add_Phone=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code_Paste=&Add_EIN=&Add_URL=&Add_Record_Type=1&countForDownload=&Add_SIC_Description=5531001&Add_SIC_Description=5087093&Add_SIC_Description=5013061&Ref_keywordSICMap=5531001-5531001+-+Auto+%26+Home+Supply+Stores&Ref_keywordSICMap=5087093-5087093+-+Auto+Inspection+Equipment+%26+Supplies+Wholesale&Ref_keywordSICMap=5013061-5013061+-+Auto+Machine+Shop+Equipment+%26+Supplies+Wholesale&curDate=Tue+Oct+17+2017+10%3A22%3A34+GMT%2B0500+(%2B05)' )
+			->post( 'https://www.atozdatabases.com/ajax/search-business-updatecount.htm' );
+
+		$this->_curl
+			->setRequestBody( 'r=nomap' )
+			->post( 'https://www.atozdatabases.com/ajax/map-revise-search.htm' );
+
+		$this->_curl
+			->setRequestBody( '_synchronizerToken=15082149238408986147383480857402&count=---&database=business&search_count=&page=search&searchType=general&searchmode=&mode=&marketingSelect=&cancelSearch=&searchCheckedDetails=&nameTreeView=&selectTreeView=&parentTreeView=&treeMetaField=&nameTreeViewExpenditure=&selectTreeViewExpenditure=&parentTreeViewExpenditure=&treeMetaFieldExpenditure=&Map_proximity=N%2FA&Map_Physical_State=N%2FA&Map_Vendor_State_County=N%2FA&Meta~SIC_Description=on&Meta~Record_Type=on&Ref_Physical_State_Physical_City=Select+a+State&Ref_CBSA_Code=Select+a+State&Ref_Vendor_State_County=Select+a+State&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip_Paste=&Add_Physical_Address=&Add_proximity=&Add_proximity=&Add_proximity=&Ref_SIC_Description=auto&Ref_Advanced_SIC_Keyword=SIC_Description&hid_SIC_Description=auto&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry_Paste=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS_Paste=&Add_Company_Name=&Add_Prefix=-1&Add_First_Name=&Add_Middle_Initial=&Add_Last_Name=&Add_Suffix=-1&Add_Employees_Advanced_From=&Add_Employees_Advanced_To=&Add_SalesAnnualRevenue_Advanced_From=&Add_SalesAnnualRevenue_Advanced_To=&Add_Phone=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code_Paste=&Add_EIN=&Add_URL=&Add_Record_Type=1&countForDownload=&Add_SIC_Description=5531001&Add_SIC_Description=5087093&Add_SIC_Description=5013061&Ref_keywordSICMap=5531001-5531001+-+Auto+%26+Home+Supply+Stores&Ref_keywordSICMap=5087093-5087093+-+Auto+Inspection+Equipment+%26+Supplies+Wholesale&Ref_keywordSICMap=5013061-5013061+-+Auto+Machine+Shop+Equipment+%26+Supplies+Wholesale&curDate=Tue+Oct+17+2017+09%3A35%3A58+GMT%2B0500+(%2B05)' )
+			->post( 'https://www.atozdatabases.com/ajax/search-business-updatecount.htm?persist=yes' );
+
+		$this->_curl
+			->setRequestBody( '_synchronizerToken=15082149238408986147383480857402&count=---&database=business&search_count=38%2C979&page=search&searchType=general&searchmode=&mode=&marketingSelect=&cancelSearch=&searchCheckedDetails=leftchk_SIC_Description%2Cleftchk_Record_Type&nameTreeView=&selectTreeView=&parentTreeView=&treeMetaField=&nameTreeViewExpenditure=&selectTreeViewExpenditure=&parentTreeViewExpenditure=&treeMetaFieldExpenditure=&Map_proximity=N%2FA&Map_Physical_State=N%2FA&Map_Vendor_State_County=N%2FA&Meta%7ESIC_Description=on&Meta%7ERecord_Type=on&Ref_Physical_State_Physical_City=Select+a+State&Ref_CBSA_Code=Select+a+State&Ref_Vendor_State_County=Select+a+State&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip_Paste=&Add_Physical_Address=&Add_proximity=&Add_proximity=&Add_proximity=&Ref_SIC_Description=auto&Ref_Advanced_SIC_Keyword=SIC_Description&hid_SIC_Description=auto&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry_Paste=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS_Paste=&Add_Company_Name=&Add_Prefix=-1&Add_First_Name=&Add_Middle_Initial=&Add_Last_Name=&Add_Suffix=-1&Add_Employees_Advanced_From=&Add_Employees_Advanced_To=&Add_SalesAnnualRevenue_Advanced_From=&Add_SalesAnnualRevenue_Advanced_To=&Add_Phone=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code_Paste=&Add_EIN=&Add_URL=&Add_Record_Type=1&countForDownload=' )
+			->post( 'https://www.atozdatabases.com/usbusiness/result' );
+
+		$this->_curl
+			->setRequestBody( 'page=ttps://www.atozdatabases.com/usbusiness/result' )
+			->post( 'https://www.atozdatabases.com/ajax/getUIErrorMsgs.htm' );
+
+		$this->_curl
+			->setRequestBody( 'database=business&curDate=Tue Oct 17 2017 09:36:01 GMT+0500 (+05)' )
+			->post( 'https://www.atozdatabases.com/ajax/getdynamiccolumns.htm' );
+
+		$this->_curl
+			->setRequestBody( 'database=business&page=search&removeStateCriteria=' )
+			->post( 'https://www.atozdatabases.com/ajax/search-result.htm' );
+
+		$this->_curl
+			->setRequestBody( 'database=business&curDate=Tue Oct 17 2017 10:36:13 GMT+0500 (+05)' )
+			->post( 'https://www.atozdatabases.com/ajax/getdynamiccolumns.htm' );
+
+		$this->_curl
+			->setRequestBody( 'pageno:1' )
+			->post( 'https://www.atozdatabases.com/ajax/search-result-business1.htm?_synchronizerTokenResult=15082177015865946505953374932698&database=business&mode=&page=result&dynamicColumn=&selectedRecordCount=0&maxRecordCount=1000&uniqueIdForDetailPage=&searchType=general&currentPage=1&totalRecords=38979&combinedsearchType=&resultFrom=&isMap=&corporateLinkageId=&corporateLinkageField=&corporateFamilyCondition=&corporateFamilyRecId=&corporateFamilyUltimateId=&corporateFamilyImmediateId=&marketingSelect=&reverseJob=&printCredits=0&downloadCredits=0&emailCredits=0&recordsPerCred=&isPatronUser=&isBulkDownloadAvailable=&userSearchCount=38979&removeStateCriteria=&findPersonOnResidents=&paginationuppertextbox=1&paginationuppertextbox=1&sort_by=1&then1_by=1&then2_by=1&email_format=pdf&email_level_detail=results_export&page_type=print&format_print=1&level_detail_Print=1&download_format=1&level_detail=1&paginationuppertextbox=' );
+
+		$this->_curl->reset();
+
+		file_put_contents( $cookiePath, "www.atozdatabases.com    FALSE    /    FALSE    0    atoz_showelementsleft_business_A3A12EDF7C941E691A1FEEC9DDAAD6E0    portlet_1%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_3%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_5%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_7%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_9%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_11%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_13%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_15%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer
+www.atozdatabases.com    FALSE    /    FALSE    0    atoz_orderleft_business_A3A12EDF7C941E691A1FEEC9DDAAD6E0    1%2C3%2C5%2C7%2C9%2C11%2C13%2C15
+www.atozdatabases.com    FALSE    /    FALSE    0    atoz_orderright_business_A3A12EDF7C941E691A1FEEC9DDAAD6E0    0%2C2%2C4%2C6%2C8%2C10%2C12%2C14
+www.atozdatabases.com    FALSE    /    FALSE    0    atoz_showelementsright_business_A3A12EDF7C941E691A1FEEC9DDAAD6E0    portlet_0%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_2%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_4%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_6%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_8%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_10%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_12%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer%2Cportlet_14%2Cdisplay%3A%20block%3B%2Cui-icon%20ui-icon-minusthick%20pointer
+www.atozdatabases.com    FALSE    /usbusiness    FALSE    0    visualizeSearchDisplay    %20Keyword%20%2F%20Business%20Type%20-%205531001%20-%20Auto%20%26%20Home%20Supply%20Stores%2C5087093%20-%20Auto%20Inspection%20Equipment%20%26%20Supplies%20Wholesale%2C5013061%20-%20Auto%20Machine%20Shop%20Equipment%20%26%20Supplies%20Wholesale%3B%20%20Type%20of%20Records%20-%20All%20Records%20-%20Used%20for%20Research%20and%20Reference%20%3B%20", FILE_APPEND );
+		$this->_curl
+			->setOptions( [
+				CURLOPT_RETURNTRANSFER => 1,
+				CURLOPT_HEADER         => 1,
+				CURLOPT_FOLLOWLOCATION => 1,
+				CURLOPT_ENCODING       => "",
+				CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML => like Gecko) Chrome/58.0.3029.96 Safari/537.36',
+				CURLOPT_CONNECTTIMEOUT => 120,
+				CURLOPT_TIMEOUT        => 120,
+				CURLOPT_MAXREDIRS      => 10,
+				CURLOPT_SSL_VERIFYPEER => 0,
+				CURLOPT_COOKIEJAR      => $cookiePath,
+				CURLOPT_COOKIEFILE     => $cookiePath,
+			] );
+		dd( $this->_curl->getInfo( CURLINFO_COOKIELIST ) );
+		$this->_curl
+			->setRequestBody( '_synchronizerTokenResult=15082177015865946505953374932698&database=business&mode=&page=result&dynamicColumn=&selectedRecordCount=0&maxRecordCount=1000&uniqueIdForDetailPage=&searchType=general&currentPage=1&totalRecords=38979&combinedsearchType=&resultFrom=&isMap=&corporateLinkageId=&corporateLinkageField=&corporateFamilyCondition=&corporateFamilyRecId=&corporateFamilyUltimateId=&corporateFamilyImmediateId=&marketingSelect=&reverseJob=&printCredits=0&downloadCredits=0&emailCredits=0&recordsPerCred=&isPatronUser=&isBulkDownloadAvailable=&userSearchCount=38979&removeStateCriteria=&findPersonOnResidents=&paginationuppertextbox=1&undefined=11132547721333_business&undefined=11132547719986_business&undefined=11132554950992_business&paginationuppertextbox=1&sort_by=1&then1_by=1&then2_by=1&email_format=pdf&email_level_detail=results_export&page_type=print&format_print=1&level_detail_Print=1&download_format=1&level_detail=1&paginationuppertextbox=&checkbox=11132554950992_business&checkbox=11132547719986_business&checkbox=11132547721333_business' )
+			->post( 'https://www.atozdatabases.com/ajax/rpc/totalSelectedRecordsCount.htm?_synchronizerTokenResult=15082177015865946505953374932698&database=business&mode=&page=result&dynamicColumn=&selectedRecordCount=0&maxRecordCount=1000&uniqueIdForDetailPage=&searchType=general&currentPage=1&totalRecords=38979&combinedsearchType=&resultFrom=&isMap=&corporateLinkageId=&corporateLinkageField=&corporateFamilyCondition=&corporateFamilyRecId=&corporateFamilyUltimateId=&corporateFamilyImmediateId=&marketingSelect=&reverseJob=&printCredits=0&downloadCredits=0&emailCredits=0&recordsPerCred=&isPatronUser=&isBulkDownloadAvailable=&userSearchCount=38979&removeStateCriteria=&findPersonOnResidents=&paginationuppertextbox=1&undefined=11132547721333_business&undefined=11132547719986_business&undefined=11132554950992_business&paginationuppertextbox=1&sort_by=1&then1_by=1&then2_by=1&email_format=pdf&email_level_detail=results_export&page_type=print&format_print=1&level_detail_Print=1&download_format=1&level_detail=1&paginationuppertextbox=&checkbox=11132554950992_business&checkbox=11132547719986_business&checkbox=11132547721333_business' );
+
+		$this->_curl
+			->setRequestBody( '_synchronizerTokenResult=15082177015865946505953374932698&database=business&mode=&page=result&dynamicColumn=&selectedRecordCount=0&maxRecordCount=1000&uniqueIdForDetailPage=&searchType=general&currentPage=1&totalRecords=38979&combinedsearchType=&resultFrom=&isMap=&corporateLinkageId=&corporateLinkageField=&corporateFamilyCondition=&corporateFamilyRecId=&corporateFamilyUltimateId=&corporateFamilyImmediateId=&marketingSelect=&reverseJob=&printCredits=0&downloadCredits=0&emailCredits=0&recordsPerCred=&isPatronUser=&isBulkDownloadAvailable=&userSearchCount=38979&removeStateCriteria=&findPersonOnResidents=&paginationuppertextbox=1&checkbox=11132547721333_business&checkbox=11132547719986_business&checkbox=11132554950992_business&paginationuppertextbox=1&sort_by=1&then1_by=1&then2_by=1&email_format=pdf&email_level_detail=results_export&page_type=print&format_print=1&level_detail_Print=1&download_format=1&level_detail=1&paginationuppertextbox=' )
+			->post( 'https://www.atozdatabases.com/usbusiness/details' );
+
+		d( $this->_curl );
+	}
 }
