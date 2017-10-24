@@ -105,11 +105,27 @@ class SiteController extends Controller
 		] );
 	}
 
+	/**
+	 * @param string $id
+	 *
+	 * @return string
+	 */
 	public function actionDetails( $id )
 	{
-		$client = new Client();
-		$client->checkLogin();
+		$cacheKey = __METHOD__ . '/' . sha1( var_export( $id, true ) );
 
-		$data = $client->getDetails( $id );
+		$data = \Yii::$app->cache->get( $cacheKey );
+		if ( $data === false )
+		{
+			$client = new Client();
+			$client->checkLogin();
+
+			$data = $client->getDetails( $id );
+			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
+		}
+
+		return $this->render( 'details', [
+			'data' => $data,
+		] );
 	}
 }

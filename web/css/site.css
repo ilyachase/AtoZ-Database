@@ -246,3 +246,8 @@ a.desc:after
 	width: 65px;
 	text-align: center;
 }
+
+.details-wrap .directory-table
+{
+	width: 500px;
+}

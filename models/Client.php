@@ -165,7 +165,6 @@ class Client
 		$this->_curl->post( "https://www.atozdatabases.com/ajax/rpc/totalSelectedRecordsCount.htm?_synchronizerTokenResult=1508318135910572191596789001015&database=business&mode=&page=result&dynamicColumn=&selectedRecordCount=0&maxRecordCount=1000&uniqueIdForDetailPage=$id&searchType=general&currentPage=1&totalRecords=38979&combinedsearchType=&resultFrom=&isMap=&corporateLinkageId=&corporateLinkageField=&corporateFamilyCondition=&corporateFamilyRecId=&corporateFamilyUltimateId=&corporateFamilyImmediateId=&marketingSelect=&reverseJob=&printCredits=0&downloadCredits=0&emailCredits=0&recordsPerCred=&isPatronUser=&isBulkDownloadAvailable=&userSearchCount=38979&removeStateCriteria=&findPersonOnResidents=&paginationuppertextbox=1&undefined=$id&paginationuppertextbox=1&sort_by=1&then1_by=1&then2_by=1&email_format=pdf&email_level_detail=results_export&page_type=print&format_print=1&level_detail_Print=1&download_format=1&level_detail=1&paginationuppertextbox=&checkbox=$id" );
 		$this->_curl->post( "https://www.atozdatabases.com/ajax/details" );
 
-		d(json_decode( $this->_curl->response )->detailsJsonArray[1][0]);
 		return json_decode( $this->_curl->response )->detailsJsonArray[1][0];
 	}
 }
