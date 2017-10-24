@@ -3,6 +3,7 @@
 namespace app\models;
 
 use \linslin\yii2\curl\Curl;
+use yii\web\HttpException;
 
 class Client
 {
@@ -106,6 +107,7 @@ class Client
 	 * @param $page
 	 *
 	 * @return \stdClass
+	 * @throws HttpException
 	 */
 	public function getSearchResult( array $keywords, $page )
 	{
@@ -114,6 +116,9 @@ class Client
 		{
 			$keywordsQuery .= '&Add_SIC_Description=' . urlencode( $keyword );
 		}
+
+		if ( !is_int( $page ) || $page < 1 )
+			throw new HttpException( 400,'Page should be unsigned positive integer' );
 
 		if ( $page == 1 )
 		{
@@ -145,30 +150,22 @@ class Client
 
 	public function getDetails( $id )
 	{
-		$this->_curl->setRequestBody( 'referer=https%3A%2F%2Fwww.carnegielibrary.org%2Fresearch%2Fpage%2F3%2F&authrefLanguage=null' )
-			->get( 'https://www.atozdatabases.com/swf/funtext.xml' );
-		$this->_curl->setRequestBody( 'page=ttps://www.atozdatabases.com/librarysignin?fromHttps=306DF343FA40DD1E43363181D92CF7BE' )
-			->get( 'https://www.atozdatabases.com/ajax/getUIErrorMsgs.htm' );
-		$this->_curl->setRequestBody( 'libraryCardId=11812015896843&accountId=2011000265&isInternal=false&refURL=https%3A%2F%2Fwww.carnegielibrary.org%2Fresearch%2Fpage%2F3%2F' )
-			->get( 'https://www.atozdatabases.com/librarycardsignin' );
-		$this->_curl->setRequestBody( 'accountId=2011000265&isInternal=false&refURL=https%3A%2F%2Fwww.carnegielibrary.org%2Fresearch%2Fpage%2F3%2F&libraryCardId=11812015896843' )
-			->get( 'https://www.atozdatabases.com/usbusiness/search' );
-		$this->_curl->setRequestBody( 'accountId=2011000265&database=business&sourceAlias=portlet.business&sourceAliasId=&marketingSelect=&page=search&postAuthType=hpdeux&postAuthAction=&search_count=&searchType=findbusiness&stateCity=&findajob=&findBusinessSearchType=findaPerson&findPersonOnResidents=NO&vi_leftchk_Physical_State_Physical_City=' )
-			->get( 'https://www.atozdatabases.com/usbusiness/search' );
-		$this->_curl->setRequestBody( 'database=business&field=Advanced_SIC_Keyword&page=search' )
-			->get( 'https://www.atozdatabases.com/ajax/rpc/getMetadataCall.htm' );
-		$this->_curl->setRequestBody( 'field=SIC_Description&criteria=auto&database=business&page=search' )
-			->get( 'https://www.atozdatabases.com/ajax/rpc/getReferenceCallData.htm?' );
-		$this->_curl->setRequestBody( '_synchronizerToken=1508318135910572191596789001015&count=---&database=business&search_count=&page=search&searchType=general&searchmode=&mode=&marketingSelect=&cancelSearch=&searchCheckedDetails=&nameTreeView=&selectTreeView=&parentTreeView=&treeMetaField=&nameTreeViewExpenditure=&selectTreeViewExpenditure=&parentTreeViewExpenditure=&treeMetaFieldExpenditure=&Map_proximity=N%2FA&Map_Physical_State=N%2FA&Map_Vendor_State_County=N%2FA&Meta~SIC_Description=on&Meta~Record_Type=on&Ref_Physical_State_Physical_City=Select+a+State&Ref_CBSA_Code=Select+a+State&Ref_Vendor_State_County=Select+a+State&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip_Paste=&Add_Physical_Address=&Add_proximity=&Add_proximity=&Add_proximity=&Ref_SIC_Description=auto&Ref_Advanced_SIC_Keyword=SIC_Description&hid_SIC_Description=auto&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry_Paste=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS_Paste=&Add_Company_Name=&Add_Prefix=-1&Add_First_Name=&Add_Middle_Initial=&Add_Last_Name=&Add_Suffix=-1&Add_Employees_Advanced_From=&Add_Employees_Advanced_To=&Add_SalesAnnualRevenue_Advanced_From=&Add_SalesAnnualRevenue_Advanced_To=&Add_Phone=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code_Paste=&Add_EIN=&Add_URL=&Add_Record_Type=1&countForDownload=&Add_SIC_Description=5531001&Add_SIC_Description=5087093&Add_SIC_Description=5013061&Ref_keywordSICMap=5531001-5531001+-+Auto+%26+Home+Supply+Stores&Ref_keywordSICMap=5087093-5087093+-+Auto+Inspection+Equipment+%26+Supplies+Wholesale&Ref_keywordSICMap=5013061-5013061+-+Auto+Machine+Shop+Equipment+%26+Supplies+Wholesale&curDate=Wed+Oct+18+2017+14%3A16%3A00+GMT%2B0500+(%2B05)' )
-			->get( 'https://www.atozdatabases.com/ajax/search-business-updatecount.htm?persist=yes' );
-		$this->_curl->setRequestBody( '_synchronizerToken=1508318135910572191596789001015&count=---&database=business&search_count=38%2C979&page=search&searchType=general&searchmode=&mode=&marketingSelect=&cancelSearch=&searchCheckedDetails=leftchk_SIC_Description%2Cleftchk_Record_Type&nameTreeView=&selectTreeView=&parentTreeView=&treeMetaField=&nameTreeViewExpenditure=&selectTreeViewExpenditure=&parentTreeViewExpenditure=&treeMetaFieldExpenditure=&Map_proximity=N%2FA&Map_Physical_State=N%2FA&Map_Vendor_State_County=N%2FA&Meta%7ESIC_Description=on&Meta%7ERecord_Type=on&Ref_Physical_State_Physical_City=Select+a+State&Ref_CBSA_Code=Select+a+State&Ref_Vendor_State_County=Select+a+State&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip_Paste=&Add_Physical_Address=&Add_proximity=&Add_proximity=&Add_proximity=&Ref_SIC_Description=auto&Ref_Advanced_SIC_Keyword=SIC_Description&hid_SIC_Description=auto&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry_Paste=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS_Paste=&Add_Company_Name=&Add_Prefix=-1&Add_First_Name=&Add_Middle_Initial=&Add_Last_Name=&Add_Suffix=-1&Add_Employees_Advanced_From=&Add_Employees_Advanced_To=&Add_SalesAnnualRevenue_Advanced_From=&Add_SalesAnnualRevenue_Advanced_To=&Add_Phone=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code_Paste=&Add_EIN=&Add_URL=&Add_Record_Type=1&countForDownload=' )
-			->get( 'https://www.atozdatabases.com/usbusiness/result' );
-		$this->_curl->setRequestBody( 'database=business&page=search&removeStateCriteria=' )
-			->get( 'https://www.atozdatabases.com/ajax/search-result.htm' );
-		$this->_curl->post( 'https://www.atozdatabases.com/ajax/rpc/totalSelectedRecordsCount.htm?_synchronizerTokenResult=1508318135910572191596789001015&database=business&mode=&page=result&dynamicColumn=&selectedRecordCount=0&maxRecordCount=1000&uniqueIdForDetailPage=11132574973292_business&searchType=general&currentPage=1&totalRecords=38979&combinedsearchType=&resultFrom=&isMap=&corporateLinkageId=&corporateLinkageField=&corporateFamilyCondition=&corporateFamilyRecId=&corporateFamilyUltimateId=&corporateFamilyImmediateId=&marketingSelect=&reverseJob=&printCredits=0&downloadCredits=0&emailCredits=0&recordsPerCred=&isPatronUser=&isBulkDownloadAvailable=&userSearchCount=38979&removeStateCriteria=&findPersonOnResidents=&paginationuppertextbox=1&undefined=11132574973292_business&paginationuppertextbox=1&sort_by=1&then1_by=1&then2_by=1&email_format=pdf&email_level_detail=results_export&page_type=print&format_print=1&level_detail_Print=1&download_format=1&level_detail=1&paginationuppertextbox=&checkbox=11132574973292_business' );
-		$this->_curl->post( 'https://www.atozdatabases.com/ajax/details' );
-//		$this->_curl->get( 'https://www.atozdatabases.com/ajax/getIndeedForDetails.htm?query=company:Murphy%20USA%20Inc&l=El%20Dorado,AR&sort=&radius=&st=&jt=&start=&limit=2&fromage=&filter=&latlong=1&co=us&chnl=&userip=195.206.240.34&useragent=Mozilla/5.0%20(X11;%20Linux%20x86_64)%20AppleWebKit/537.36%20(KHTML,%20like%20Gecko)%20Chrome/54.0.2840.71%20Safari/537.36&v=2&format=json&callback=jobPortal&t=1508318170342' );
+		$this->_curl->setRequestBody( "accountId=2011000265&isInternal=false&refURL=https%3A%2F%2Fwww.carnegielibrary.org%2Fresearch%2Fpage%2F3%2F&libraryCardId=11812015896843" )
+			->get( "https://www.atozdatabases.com/usbusiness/search" );
+		$this->_curl->setRequestBody( "accountId=2011000265&database=business&sourceAlias=portlet.business&sourceAliasId=&marketingSelect=&page=search&postAuthType=hpdeux&postAuthAction=&search_count=&searchType=findbusiness&stateCity=&findajob=&findBusinessSearchType=findaPerson&findPersonOnResidents=NO&vi_leftchk_Physical_State_Physical_City=" )
+			->get( "https://www.atozdatabases.com/usbusiness/search" );
+		$this->_curl->setRequestBody( "database=business&field=Advanced_SIC_Keyword&page=search" )
+			->get( "https://www.atozdatabases.com/ajax/rpc/getMetadataCall.htm" );
+		$this->_curl->setRequestBody( "field=SIC_Description&criteria=auto&database=business&page=search" ) // TODO: criteria
+			->get( "https://www.atozdatabases.com/ajax/rpc/getReferenceCallData.htm?" );
+		$this->_curl->setRequestBody( "count=---&database=business&search_count=&page=search&searchType=general&searchmode=&mode=&marketingSelect=&cancelSearch=&searchCheckedDetails=&nameTreeView=&selectTreeView=&parentTreeView=&treeMetaField=&nameTreeViewExpenditure=&selectTreeViewExpenditure=&parentTreeViewExpenditure=&treeMetaFieldExpenditure=&Map_proximity=N%2FA&Map_Physical_State=N%2FA&Map_Vendor_State_County=N%2FA&Meta~SIC_Description=on&Meta~Record_Type=on&Ref_Physical_State_Physical_City=Select+a+State&Ref_CBSA_Code=Select+a+State&Ref_Vendor_State_County=Select+a+State&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip_Paste=&Add_Physical_Address=&Add_proximity=&Add_proximity=&Add_proximity=&Ref_SIC_Description=auto&Ref_Advanced_SIC_Keyword=SIC_Description&hid_SIC_Description=auto&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry_Paste=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS_Paste=&Add_Company_Name=&Add_Prefix=-1&Add_First_Name=&Add_Middle_Initial=&Add_Last_Name=&Add_Suffix=-1&Add_Employees_Advanced_From=&Add_Employees_Advanced_To=&Add_SalesAnnualRevenue_Advanced_From=&Add_SalesAnnualRevenue_Advanced_To=&Add_Phone=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code_Paste=&Add_EIN=&Add_URL=&Add_Record_Type=1&countForDownload=&Add_SIC_Description=5531001&Add_SIC_Description=5087093&Add_SIC_Description=5013061&Ref_keywordSICMap=5531001-5531001+-+Auto+%26+Home+Supply+Stores&Ref_keywordSICMap=5087093-5087093+-+Auto+Inspection+Equipment+%26+Supplies+Wholesale&Ref_keywordSICMap=5013061-5013061+-+Auto+Machine+Shop+Equipment+%26+Supplies+Wholesale" ) // TODO: keywords
+			->get( "https://www.atozdatabases.com/ajax/search-business-updatecount.htm?persist=yes" );
+		$this->_curl->setRequestBody( "count=---&database=business&search_count=38%2C979&page=search&searchType=general&searchmode=&mode=&marketingSelect=&cancelSearch=&searchCheckedDetails=leftchk_SIC_Description%2Cleftchk_Record_Type&nameTreeView=&selectTreeView=&parentTreeView=&treeMetaField=&nameTreeViewExpenditure=&selectTreeViewExpenditure=&parentTreeViewExpenditure=&treeMetaFieldExpenditure=&Map_proximity=N%2FA&Map_Physical_State=N%2FA&Map_Vendor_State_County=N%2FA&Meta%7ESIC_Description=on&Meta%7ERecord_Type=on&Ref_Physical_State_Physical_City=Select+a+State&Ref_CBSA_Code=Select+a+State&Ref_Vendor_State_County=Select+a+State&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip=&Add_Physical_Zip_Paste=&Add_Physical_Address=&Add_proximity=&Add_proximity=&Add_proximity=&Ref_SIC_Description=auto&Ref_Advanced_SIC_Keyword=SIC_Description&hid_SIC_Description=auto&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry=&Add_Industry_Paste=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS=&Add_NAICS_Paste=&Add_Company_Name=&Add_Prefix=-1&Add_First_Name=&Add_Middle_Initial=&Add_Last_Name=&Add_Suffix=-1&Add_Employees_Advanced_From=&Add_Employees_Advanced_To=&Add_SalesAnnualRevenue_Advanced_From=&Add_SalesAnnualRevenue_Advanced_To=&Add_Phone=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code=&Add_Area_Code_Paste=&Add_EIN=&Add_URL=&Add_Record_Type=1&countForDownload=" ) // TODO: auto
+			->get( "https://www.atozdatabases.com/usbusiness/result" );
+		$this->_curl->post( "https://www.atozdatabases.com/ajax/rpc/totalSelectedRecordsCount.htm?_synchronizerTokenResult=1508318135910572191596789001015&database=business&mode=&page=result&dynamicColumn=&selectedRecordCount=0&maxRecordCount=1000&uniqueIdForDetailPage=$id&searchType=general&currentPage=1&totalRecords=38979&combinedsearchType=&resultFrom=&isMap=&corporateLinkageId=&corporateLinkageField=&corporateFamilyCondition=&corporateFamilyRecId=&corporateFamilyUltimateId=&corporateFamilyImmediateId=&marketingSelect=&reverseJob=&printCredits=0&downloadCredits=0&emailCredits=0&recordsPerCred=&isPatronUser=&isBulkDownloadAvailable=&userSearchCount=38979&removeStateCriteria=&findPersonOnResidents=&paginationuppertextbox=1&undefined=$id&paginationuppertextbox=1&sort_by=1&then1_by=1&then2_by=1&email_format=pdf&email_level_detail=results_export&page_type=print&format_print=1&level_detail_Print=1&download_format=1&level_detail=1&paginationuppertextbox=&checkbox=$id" );
+		$this->_curl->post( "https://www.atozdatabases.com/ajax/details" );
 
-		d( $this->_curl );
+		d(json_decode( $this->_curl->response )->detailsJsonArray[1][0]);
+		return json_decode( $this->_curl->response )->detailsJsonArray[1][0];
 	}
 }
