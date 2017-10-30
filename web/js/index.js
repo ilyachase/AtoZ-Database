@@ -1,4 +1,6 @@
 $( function () {
+	var enteredKeyword;
+
 	$( '#keyword_form' ).submit( function () {
 		return false;
 	} );
@@ -8,6 +10,8 @@ $( function () {
 
 		window.clearTimeout( $( this ).data( "timeout" ) );
 		$( this ).data( "timeout", setTimeout( function () {
+			enteredKeyword = keyword;
+
 			$.ajax( {
 				url       : '/ajax/keywordautocomplete',
 				data      : {'keyword': keyword},
@@ -37,6 +41,9 @@ $( function () {
 		var $selected_keywords = $( '#selected_keywords' ),
 			already_have = false,
 			adding_value = $( this ).data( 'value' );
+
+		if ( !adding_value )
+			return false;
 
 		$( '.list-group-item', $selected_keywords ).each( function ( k, v ) {
 			if ( $( v ).data( 'value' ) === adding_value )
@@ -109,6 +116,8 @@ $( function () {
 
 			queryString += $( v ).data( 'value' );
 		} );
+
+		queryString += '&keyword=' + enteredKeyword;
 
 		window.location.href = '/site/search' + queryString;
 	} );

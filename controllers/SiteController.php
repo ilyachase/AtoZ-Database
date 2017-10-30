@@ -57,13 +57,14 @@ class SiteController extends Controller
 
 	/**
 	 * @param array $keywords
+	 * @param string $keyword
 	 * @param int $page
 	 *
 	 * @return string
 	 */
-	public function actionSearch( array $keywords, $page = 1 )
+	public function actionSearch( array $keywords, $keyword, $page = 1 )
 	{
-		$cacheKey = __METHOD__ . '/' . sha1( var_export( $keywords, true ) ) . '/' . $page;
+		$cacheKey = __METHOD__ . "/$keyword/" . sha1( var_export( $keywords, true ) ) . '/' . $page;
 
 		$data = \Yii::$app->cache->get( $cacheKey );
 		if ( $data === false )
@@ -71,6 +72,7 @@ class SiteController extends Controller
 			$client = new Client();
 			$client->checkLogin();
 
+			$client->getKeywordsAutocomplete( $keyword );
 			$data = $client->getSearchResult( $keywords, $page );
 			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
 		}
