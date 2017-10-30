@@ -130,4 +130,16 @@ class SiteController extends Controller
 			'data' => $data,
 		] );
 	}
+
+	public function actionReport( array $keywords, $keyword, $email )
+	{
+		$client = new Client();
+		$client->checkLogin();
+
+		//TODO: validate email
+//		$client->getKeywordsAutocomplete( $keyword );
+//		$client->getSearchResult( $keywords, 1 );
+
+		$client->enqueueReport( $email );
+	}
 }
