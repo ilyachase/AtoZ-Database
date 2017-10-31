@@ -8,7 +8,8 @@ $( function () {
 	}
 
 	function changePage( toPage )
-	{console.log(toPage);
+	{
+		console.log( toPage );
 		var queryKeywords = $.url( '?keywords', window.location.href ),
 			finalQuery = {};
 
@@ -44,4 +45,29 @@ $( function () {
 	} );
 
 	checkPageButtonsState();
+
+	$( '#send_report' ).click( function () {
+		var entered_email = $( '#report_email' ).val();
+
+		if ( !entered_email || !validateEmail( entered_email ) )
+		{
+			alert( 'Enter a valid email' );
+			return false;
+		}
+
+		function validateEmail( email )
+		{
+			var emailReg = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+			return emailReg.test( email );
+		}
+
+		$.ajax( '/ajax/enqueuereport' + window.location.search + '&email=' + entered_email, {
+			success: function ( data ) {
+				window.location.href = '/site/report?id=' + data;
+			},
+			error  : function () {
+				alert( 'Sorry, something went wrong. Contact with administrator please.' );
+			}
+		} )
+	} );
 } );

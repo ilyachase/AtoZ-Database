@@ -39,6 +39,10 @@ $this->title = 'Results';
 				<div class="form-group">
 					<button type="button" id="next_page" class="btn btn-default"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span></button>
 				</div>
+				<div class="form-group pull-right">
+					<input type="email" id="report_email" required class="form-control" placeholder="Email">&nbsp;&nbsp;
+					<button type="button" id="send_report" class="btn btn-success pull-right"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Send report</button>
+				</div>
 			</form>
 			<h5>Page <span id="current_page"><?= $currentPage ?></span> of <span id="total_pages"><?= $totalPages ?></span></h5>
 			<table class="table table-bordered table-striped">

@@ -36,6 +36,7 @@ class AjaxController extends Controller
 				'class'   => VerbFilter::className(),
 				'actions' => [
 					'keywordautocomplete' => [ 'get' ],
+					'enqueuereport'       => [ 'get' ],
 					'getcount'            => [ 'post' ],
 				],
 			],
@@ -106,5 +107,19 @@ class AjaxController extends Controller
 		}
 
 		return $data;
+	}
+
+	/**
+	 * @param array $keywords
+	 * @param string[] $keyword
+	 * @param string $email
+	 *
+	 * @return bool|int
+	 */
+	public function actionEnqueuereport( array $keywords, $keyword, $email )
+	{
+		$client = new Client();
+
+		return $client->enqueueReport( $keywords, $keyword, $email );
 	}
 }

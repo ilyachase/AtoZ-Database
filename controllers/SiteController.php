@@ -2,10 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\activerecord\Reports;
 use app\models\Client;
 use app\models\LoginForm;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\HttpException;
 use yii\web\Response;
 
 class SiteController extends Controller
@@ -72,6 +74,7 @@ class SiteController extends Controller
 			$client = new Client();
 			$client->checkLogin();
 
+			// TODO: too many results
 			$client->getKeywordsAutocomplete( $keyword );
 			$data = $client->getSearchResult( $keywords, $page );
 			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
@@ -131,15 +134,16 @@ class SiteController extends Controller
 		] );
 	}
 
-	public function actionReport( array $keywords, $keyword, $email )
+	/**
+	 * @param int $id
+	 *
+	 * @return string
+	 * @throws HttpException
+	 */
+	public function actionReport( $id )
 	{
-		$client = new Client();
-		$client->checkLogin();
-
-		//TODO: validate email
-//		$client->getKeywordsAutocomplete( $keyword );
-//		$client->getSearchResult( $keywords, 1 );
-
-		$client->enqueueReport( $email );
+		return $this->render( 'report', [
+			'model' => Reports::findOne( $id ),
+		] );
 	}
 }

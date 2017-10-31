@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\models\activerecord\Reports;
+use app\models\report\Params;
 use \linslin\yii2\curl\Curl;
 use yii\web\HttpException;
 
@@ -117,7 +119,8 @@ class Client
 			$keywordsQuery .= '&Add_SIC_Description=' . urlencode( $keyword );
 		}
 
-		if ( !is_int( $page ) || $page < 1 )
+		$page = (int) $page;
+		if ( $page < 1 )
 			throw new HttpException( 400, 'Page should be unsigned positive integer' );
 
 		if ( $page == 1 )
@@ -169,13 +172,27 @@ class Client
 		return json_decode( $this->_curl->response )->detailsJsonArray[1][0];
 	}
 
-	public function enqueueReport( $email )
+	/**
+	 * @param string[] $keywords
+	 * @param string $keyword
+	 * @param string $email
+	 *
+	 * @return int
+	 */
+	public function enqueueReport( array $keywords, $keyword, $email )
 	{
-		$this->_curl
-			->setRequestBody( 'format=comma&viewMode=custom_export&database=business&customeName=&selectedCheckboxes=11132555022671_business%2C11132549693392_business%2C11132551852133_business%2C11132549841265_business%2C11132554851071_business%2C11140000220356_business%2C11132551464999_business%2C11132554720660_business%2C11132551434674_business%2C11132544238022_business%2C11132548856018_business%2C11132574127481_business%2C11132554588773_business%2C11132553127229_business%2C11132554385209_business%2C11132548676479_business%2C11132554189421_business%2C11132554554586_business%2C11132550967678_business%2C11132551600906_business%2C11132551592743_business%2C11132552937875_business%2C11132567802328_business%2C11132553661444_business%2C11132551489440_business&selectedSections=Business+Name%2CFirst+Name%2CLast+Name%2CWebsite%2CPhone%2CPhysical+City%2CPhysical+State%2CExecutive+First+Name+1%2CExecutive+Last+Name+1%2CExecutive+First+Name+2%2CExecutive+Last+Name+2%2CExecutive+First+Name+3%2CExecutive+Last+Name+3%2CExecutive+First+Name+4%2CExecutive+Last+Name+4%2CExecutive+First+Name+5%2CExecutive+Last+Name+5%2CExecutive+First+Name+6%2CExecutive+Last+Name+6%2CExecutive+First+Name+7%2CExecutive+Last+Name+7%2CExecutive+First+Name+8%2CExecutive+Last+Name+8%2CExecutive+First+Name+9%2CExecutive+Last+Name+9%2CExecutive+First+Name+10%2CExecutive+Last+Name+10%2CExecutive+First+Name+11%2CExecutive+Last+Name+11%2CExecutive+First+Name+12%2CExecutive+Last+Name+12%2CExecutive+First+Name+13%2CExecutive+Last+Name+13%2CExecutive+First+Name+14%2CExecutive+Last+Name+14%2CExecutive+First+Name+15%2CExecutive+Last+Name+15%2CExecutive+First+Name+16%2CExecutive+First+Name+17%2CExecutive+Last+Name+16%2CExecutive+Last+Name+17%2CExecutive+First+Name+18%2CExecutive+Last+Name+18%2CExecutive+First+Name+19%2CExecutive+Last+Name+19%2CExecutive+First+Name+20%2CExecutive+Last+Name+20&downloadOptCheckedVal=0&totalRecordCount=38979&searchType=general' )
-			->post( 'https://www.atozdatabases.com/ajax/submitDownload.htm' );
-		$this->_curl
-			->post('https://www.atozdatabases.com/exportdownload.htm');
-		die( $this->_curl->response );
+		$params = new Params();
+		{
+			$params->keywords = $keywords;
+			$params->keyword = $keyword;
+		}
+
+		$report = new Reports();
+		$report->filename = sha1( var_export( $keywords, true ) . $keyword . time() );
+		$report->email = $email;
+		$report->setParams( $params );
+		$report->save();
+
+		return $report->filename;
 	}
 }
