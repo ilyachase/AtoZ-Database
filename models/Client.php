@@ -151,6 +151,32 @@ class Client
 		return $result;
 	}
 
+	/**
+	 * @param array $csvKeywords
+	 * @param array $searchKeywords
+	 * @param string $keyword
+	 *
+	 * @return string
+	 */
+	public function getCsvReport( array $csvKeywords, array $searchKeywords = [], $keyword = '' )
+	{
+		if ( $keyword )
+			$this->getKeywordsAutocomplete( $keyword );
+
+		if ( count( $searchKeywords ) )
+			$this->getSearchResult( $searchKeywords, 1 );
+
+		$keywordsString = urlencode( implode( ',', $csvKeywords ) );
+
+		$this->_curl
+			->setRequestBody( "format=comma&viewMode=custom_export&database=business&customeName=&selectedCheckboxes=$keywordsString&selectedSections=Business+Name%2CFirst+Name%2CLast+Name%2CWebsite%2CPhone%2CPhysical+City%2CPhysical+State%2CExecutive+First+Name+1%2CExecutive+Last+Name+1%2CExecutive+First+Name+2%2CExecutive+Last+Name+2%2CExecutive+First+Name+3%2CExecutive+Last+Name+3%2CExecutive+First+Name+4%2CExecutive+Last+Name+4%2CExecutive+First+Name+5%2CExecutive+Last+Name+5%2CExecutive+First+Name+6%2CExecutive+Last+Name+6%2CExecutive+First+Name+7%2CExecutive+Last+Name+7%2CExecutive+First+Name+8%2CExecutive+Last+Name+8%2CExecutive+First+Name+9%2CExecutive+Last+Name+9%2CExecutive+First+Name+10%2CExecutive+Last+Name+10%2CExecutive+First+Name+11%2CExecutive+Last+Name+11%2CExecutive+First+Name+12%2CExecutive+Last+Name+12%2CExecutive+First+Name+13%2CExecutive+Last+Name+13%2CExecutive+First+Name+14%2CExecutive+Last+Name+14%2CExecutive+First+Name+15%2CExecutive+Last+Name+15%2CExecutive+First+Name+16%2CExecutive+First+Name+17%2CExecutive+Last+Name+16%2CExecutive+Last+Name+17%2CExecutive+First+Name+18%2CExecutive+Last+Name+18%2CExecutive+First+Name+19%2CExecutive+Last+Name+19%2CExecutive+First+Name+20%2CExecutive+Last+Name+20&downloadOptCheckedVal=0&totalRecordCount=38979&searchType=general" )
+			->post( 'https://www.atozdatabases.com/ajax/submitDownload.htm' );
+		$this->_curl
+			->post( 'https://www.atozdatabases.com/exportdownload.htm' );
+
+		return $this->_curl->response;
+	}
+
 	//TODO: use keywords and keyword steps
 	public function getDetails( $id )
 	{

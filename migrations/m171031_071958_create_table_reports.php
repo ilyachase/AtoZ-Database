@@ -14,6 +14,7 @@ class m171031_071958_create_table_reports extends Migration
 			'count'    => $this->bigInteger()->notNull()->defaultValue( 0 ),
 		] );
 		$this->addPrimaryKey( 'filename', 'reports', 'filename' );
+		$this->createIndex( 'status', 'reports', 'status' );
 	}
 
 	public function safeDown()

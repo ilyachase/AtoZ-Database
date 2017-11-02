@@ -47,7 +47,8 @@ $( function () {
 	checkPageButtonsState();
 
 	$( '#send_report' ).click( function () {
-		var entered_email = $( '#report_email' ).val();
+		var entered_email = $( '#report_email' ).val(),
+			$button = $( this );
 
 		if ( !entered_email || !validateEmail( entered_email ) )
 		{
@@ -62,10 +63,13 @@ $( function () {
 		}
 
 		$.ajax( '/ajax/enqueuereport' + window.location.search + '&email=' + entered_email, {
-			success: function ( data ) {
+			beforeSend: function () {
+				$button.attr( 'disabled', true );
+			},
+			success   : function ( data ) {
 				window.location.href = '/site/report?id=' + data;
 			},
-			error  : function () {
+			error     : function () {
 				alert( 'Sorry, something went wrong. Contact with administrator please.' );
 			}
 		} )
