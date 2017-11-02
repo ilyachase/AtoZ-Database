@@ -7,6 +7,8 @@ use app\models\Client;
 
 class ReportController extends BaseController
 {
+	const PAGES_LIMIT = 2; // 40 max
+
 	public function actionIndex()
 	{
 		ini_set( 'memory_limit', '128M' );
@@ -35,8 +37,7 @@ class ReportController extends BaseController
 			$keywords = array_merge( $keywords, $this->_extractKeywords( $client->getSearchResult( $params->keywords, $i ) ) );
 			$this->log( ".", false, false );
 
-//			if ( $i % 40 == 0 )
-			if ( $i % 2 == 0 )
+			if ( $i % self::PAGES_LIMIT == 0 )
 			{
 				$report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i );
 				$lastI = $i;
@@ -48,6 +49,9 @@ class ReportController extends BaseController
 		{
 			$report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i );
 		}
+
+		$this->log( "Creating final csv" );
+		// todo spl
 
 		$this->log( "", true, false );
 	}

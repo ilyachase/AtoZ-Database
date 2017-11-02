@@ -99,6 +99,9 @@ class Reports extends \yii\db\ActiveRecord
 		if ( !file_exists( $this->_getReportDir() ) )
 			mkdir( $this->_getReportDir() );
 
+		if ( !file_exists( $this->_getReportPartsDir() ) )
+			mkdir( $this->_getReportPartsDir() );
+
 		file_put_contents( $this->_getReportPartsDir() . DS . $lastI . '_' . $i . '.csv', $csvReport );
 	}
 
