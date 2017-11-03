@@ -76,11 +76,20 @@ $( function () {
 	}
 
 	$( '#update_count' ).click( function () {
+		if ( get_selected_keywords().length === 0 )
+		{
+			alert( 'Select keywords first' );
+			return;
+		}
+
+		var $button = $( this );
+
 		$.ajax( {
 			method    : 'post',
 			url       : '/ajax/getcount',
 			data      : {'keywords': get_selected_keywords()},
 			beforeSend: function () {
+				$button.attr( 'disabled', true );
 				$( '#loader' ).show();
 			},
 			success   : function ( data ) {
@@ -88,6 +97,7 @@ $( function () {
 			},
 			complete  : function () {
 				$( '#loader' ).hide();
+				$button.attr( 'disabled', false );
 			}
 		} );
 	} );

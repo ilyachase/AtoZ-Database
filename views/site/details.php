@@ -5,7 +5,7 @@
  * @var $data stdClass
  */
 
-$this->title = $data->Overview[0][1];
+$this->title = html_entity_decode( $data->Overview[0][1] );
 
 ?>
 <div class="details-wrap">

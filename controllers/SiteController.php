@@ -7,7 +7,6 @@ use app\models\Client;
 use app\models\LoginForm;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\HttpException;
 use yii\web\Response;
 
 class SiteController extends Controller
@@ -136,14 +135,20 @@ class SiteController extends Controller
 
 	/**
 	 * @param int $id
+	 * @param string $action
 	 *
 	 * @return string
-	 * @throws HttpException
 	 */
-	public function actionReport( $id )
+	public function actionReport( $id, $action = '' )
 	{
+		$report = Reports::findOne( $id );
+		if ( $action == 'download' && $report->status == Reports::STATUS_FINISHED )
+		{
+			return \Yii::$app->response->sendFile( $report->getCsvPath(), $report->filename . '.csv' );
+		}
+
 		return $this->render( 'report', [
-			'model' => Reports::findOne( $id ),
+			'model' => $report,
 		] );
 	}
 }

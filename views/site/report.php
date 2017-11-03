@@ -5,6 +5,9 @@
  * @var $model \app\models\activerecord\Reports|null
  */
 
+use app\models\activerecord\Reports;
+use yii\helpers\Html;
+
 $this->title = 'Report';
 ?>
 <div class="report-wrap">
@@ -25,6 +28,10 @@ $this->title = 'Report';
 					<dd><?= $model->getStatusHtml() ?></dd>
 					<dt>Report rows count</dt>
 					<dd><?= $model->count ?></dd>
+					<?php if ( $model->status == Reports::STATUS_FINISHED ): ?>
+						<dt>Result csv</dt>
+						<dd><?= Html::a( 'Download', [ '/site/report/', 'id' => $model->filename, 'action' => 'download' ] ) ?></dd>
+					<?php endif; ?>
 				</dl>
 			<?php endif; ?>
 		</div>

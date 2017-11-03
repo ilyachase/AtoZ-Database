@@ -3,7 +3,7 @@
 namespace app\models\activerecord;
 
 use app\models\report\Params;
-use yii\console\Exception;
+use yii\base\Exception;
 
 /**
  * This is the model class for table "reports".
@@ -89,26 +89,30 @@ class Reports extends \yii\db\ActiveRecord
 	 * @param string $lastI
 	 * @param string $i
 	 *
+	 * @return string
 	 * @throws Exception
 	 */
 	public function saveCsvReportPart( $csvReport, $lastI, $i )
 	{
 		if ( !$csvReport )
-			throw new Exception( "csvReport string is empty" );
+			throw new Exception("csvReport is empty");
 
-		if ( !file_exists( $this->_getReportDir() ) )
-			mkdir( $this->_getReportDir() );
+		if ( !file_exists( $this->getReportDir() ) )
+			mkdir( $this->getReportDir() );
 
-		if ( !file_exists( $this->_getReportPartsDir() ) )
-			mkdir( $this->_getReportPartsDir() );
+		if ( !file_exists( $this->getReportPartsDir() ) )
+			mkdir( $this->getReportPartsDir() );
 
-		file_put_contents( $this->_getReportPartsDir() . DS . $lastI . '_' . $i . '.csv', $csvReport );
+		$filename = $this->getReportPartsDir() . DS . $lastI . '_' . $i . '.csv';
+		file_put_contents( $filename, $csvReport );
+
+		return $filename;
 	}
 
 	/**
 	 * @return string
 	 */
-	private function _getReportDir()
+	public function getReportDir()
 	{
 		return \Yii::getAlias( '@runtime' ) . DS . 'reports' . DS . $this->filename;
 	}
@@ -116,8 +120,16 @@ class Reports extends \yii\db\ActiveRecord
 	/**
 	 * @return string
 	 */
-	private function _getReportPartsDir()
+	public function getReportPartsDir()
 	{
-		return $this->_getReportDir() . DS . 'parts';
+		return $this->getReportDir() . DS . 'parts';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCsvPath()
+	{
+		return $this->getReportDir() . DS . 'report.csv';
 	}
 }
