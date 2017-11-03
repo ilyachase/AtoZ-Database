@@ -119,7 +119,10 @@ class ReportController extends BaseController
 		$this->log( "Creating final csv" );
 
 		$finalCsvHandle = fopen( $report->getCsvPath(), 'w' );
-		foreach ( sort( FileHelper::findFiles( $report->getReportPartsDir() ) ) as $file )
+		$files = FileHelper::findFiles( $report->getReportPartsDir() );
+		natsort( $files );
+
+		foreach ( $files as $file )
 		{
 			$this->log( "File: $file" );
 			$partSourceHandle = fopen( $file, 'r' );
