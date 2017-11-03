@@ -54,7 +54,7 @@ class ReportController extends BaseController
 			throw $e;
 		}
 
-		$this->log( "", true, false );
+		$this->log( "", true, true );
 	}
 
 	/**
@@ -152,7 +152,7 @@ class ReportController extends BaseController
 							$namedSourceRow[self::CSV_ROW_EX_FIRSTNAME_I . $i] . ' ' . $namedSourceRow[self::CSV_ROW_EX_LASTNAME_I . $i],
 						] );
 
-						$this->log( '.', false, false );
+						$this->log( '.', false, true );
 						$c++;
 					}
 				}
@@ -165,7 +165,7 @@ class ReportController extends BaseController
 			}
 
 			fclose( $partSourceHandle );
-			$this->log( '', true, false );
+			$this->log( '', true, true );
 		}
 
 		fclose( $finalCsvHandle );
