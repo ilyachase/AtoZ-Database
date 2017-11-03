@@ -8,7 +8,7 @@ use yii\helpers\FileHelper;
 
 class ReportController extends BaseController
 {
-	const PAGES_LIMIT = 6;
+	const PAGES_LIMIT = 4;
 
 	const CSV_ROW_COMPANY = 'Business Name';
 	const CSV_ROW_WEBSITE = 'Website';
