@@ -41,8 +41,18 @@ class ReportController extends BaseController
 		$report->status = Reports::STATUS_PROCESSING;
 		$report->save();
 
-		$this->_getParts( $report );
-		$this->_generateReport( $report );
+		try
+		{
+			$this->_getParts( $report );
+			$this->_generateReport( $report );
+		}
+		catch ( \Exception $e )
+		{
+			$report->status = Reports::STATUS_JUST_CREATED;
+			$report->save();
+
+			throw $e;
+		}
 
 		$this->log( "", true, false );
 	}
