@@ -149,7 +149,7 @@ class ReportController extends BaseController
 				{
 					if ( $namedSourceRow[self::CSV_ROW_EX_FIRSTNAME_I . $i] )
 					{
-						fputcsv( $finalCsvHandle, [
+						$rowToInsert = [
 							$namedSourceRow[self::CSV_ROW_COMPANY],
 							$namedSourceRow[self::CSV_ROW_WEBSITE],
 							$namedSourceRow[self::CSV_ROW_PHONE],
@@ -157,7 +157,11 @@ class ReportController extends BaseController
 							$namedSourceRow[self::CSV_ROW_STATE],
 							$namedSourceRow[self::CSV_ROW_EX_TITLE_I . $i],
 							$namedSourceRow[self::CSV_ROW_EX_FIRSTNAME_I . $i] . ' ' . $namedSourceRow[self::CSV_ROW_EX_LASTNAME_I . $i],
-						] );
+						];
+
+						fputcsv( $finalCsvHandle, $rowToInsert );
+
+						$report->addJsonEntity( $rowToInsert );
 
 						$this->log( '.', false, true );
 						$c++;
@@ -178,6 +182,7 @@ class ReportController extends BaseController
 		fclose( $finalCsvHandle );
 
 		$report->status = Reports::STATUS_PROCESSING_GENERATED_FINAL_CSV;
+		$report->created = \Yii::$app->formatter->asDatetime( time(), 'php:Y-m-d H:i:s' );
 		$report->save();
 	}
 

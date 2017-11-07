@@ -12,9 +12,11 @@ class m171031_071958_create_table_reports extends Migration
 			'params'   => $this->text(),
 			'status'   => $this->smallInteger()->unsigned()->notNull()->defaultValue( 0 ),
 			'count'    => $this->bigInteger()->notNull()->defaultValue( 0 ),
+			'created'  => $this->dateTime(),
 		] );
 		$this->addPrimaryKey( 'filename', 'reports', 'filename' );
 		$this->createIndex( 'status', 'reports', 'status' );
+		$this->createIndex( 'created', 'reports', 'created' );
 	}
 
 	public function safeDown()

@@ -12,6 +12,7 @@ use yii\base\Exception;
  * @property string $email
  * @property integer $status
  * @property integer $count
+ * @property string $created
  */
 class Reports extends \yii\db\ActiveRecord
 {
@@ -41,9 +42,10 @@ class Reports extends \yii\db\ActiveRecord
 	public function rules()
 	{
 		return [
-			[ [ 'filename' ], 'required' ],
+			[ [ 'filename', 'email' ], 'required' ],
 			[ [ 'params' ], 'string' ],
 			[ [ 'status', 'count' ], 'integer' ],
+			[ [ 'created' ], 'safe' ],
 			[ [ 'filename', 'email' ], 'string', 'max' => 255 ],
 		];
 	}
@@ -59,6 +61,7 @@ class Reports extends \yii\db\ActiveRecord
 			'params'   => 'Params',
 			'status'   => 'Status',
 			'count'    => 'Count',
+			'created'  => 'Created',
 		];
 	}
 
@@ -112,6 +115,24 @@ class Reports extends \yii\db\ActiveRecord
 	}
 
 	/**
+	 * @param array $rowToInsert
+	 */
+	public function addJsonEntity( array $rowToInsert )
+	{
+		$justCreated = false;
+		if ( !file_exists( $this->getJsonFile() ) )
+		{
+			$justCreated = true;
+			file_put_contents( $this->getJsonFile(), '[]' );
+		}
+
+		$h = fopen( $this->getJsonFile(), 'c' );
+		fseek( $h, -1, SEEK_END );
+		fwrite( $h, ( $justCreated ? '' : ',' ) . json_encode( $rowToInsert ) . ']' );
+		fclose( $h );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getReportDir()
@@ -133,5 +154,13 @@ class Reports extends \yii\db\ActiveRecord
 	public function getCsvPath()
 	{
 		return $this->getReportDir() . DS . 'report.csv';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getJsonFile()
+	{
+		return $this->getReportDir() . DS . 'report.json';
 	}
 }
