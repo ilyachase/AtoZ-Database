@@ -2,6 +2,7 @@
 
 $params = require( __DIR__ . '/params.php' );
 $db = require( __DIR__ . '/db.php' );
+$mailer = require( __DIR__ . '/mailer.php' );
 
 $config = [
 	'id'                  => 'basic-console',
@@ -9,10 +10,10 @@ $config = [
 	'bootstrap'           => [ 'log' ],
 	'controllerNamespace' => 'app\commands',
 	'components'          => [
-		'cache' => [
+		'cache'  => [
 			'class' => 'yii\caching\FileCache',
 		],
-		'log'   => [
+		'log'    => [
 			'targets' => [
 				[
 					'class'  => 'yii\log\FileTarget',
@@ -27,7 +28,8 @@ $config = [
 				],
 			],
 		],
-		'db'    => $db,
+		'db'     => $db,
+		'mailer' => $mailer,
 	],
 	'params'              => $params,
 	/*

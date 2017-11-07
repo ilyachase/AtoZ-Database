@@ -16,13 +16,15 @@ use yii\base\Exception;
 class Reports extends \yii\db\ActiveRecord
 {
 	const STATUS_JUST_CREATED = 0;
-	const STATUS_PROCESSING = 1;
-	const STATUS_FINISHED = 2;
+	const STATUS_PROCESSING_GOT_PARTS = 1;
+	const STATUS_PROCESSING_GENERATED_FINAL_CSV = 2;
+	const STATUS_FINISHED = 3;
 
 	private $_statusTexts = [
-		self::STATUS_JUST_CREATED => '<span class="text-primary">Just created (waiting to get in work)</span>',
-		self::STATUS_PROCESSING   => '<span class="text-warning">Processing</span>',
-		self::STATUS_FINISHED     => '<span class="text-success">Finished</span>',
+		self::STATUS_JUST_CREATED                   => '<span class="text-primary">Just created (waiting to get in work)</span>',
+		self::STATUS_PROCESSING_GOT_PARTS           => '<span class="text-warning">Processing</span>',
+		self::STATUS_PROCESSING_GENERATED_FINAL_CSV => '<span class="text-warning">Processing</span>',
+		self::STATUS_FINISHED                       => '<span class="text-success">Finished</span>',
 	];
 
 	/**
@@ -95,7 +97,7 @@ class Reports extends \yii\db\ActiveRecord
 	public function saveCsvReportPart( $csvReport, $lastI, $i )
 	{
 		if ( !$csvReport )
-			throw new Exception("csvReport is empty");
+			throw new Exception( "csvReport is empty" );
 
 		if ( !file_exists( $this->getReportDir() ) )
 			mkdir( $this->getReportDir() );

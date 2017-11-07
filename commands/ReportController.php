@@ -34,17 +34,15 @@ class ReportController extends BaseController
 	public function actionIndex()
 	{
 		ini_set( 'memory_limit', '128M' );
-		$report = Reports::findOne( [ 'status' => Reports::STATUS_JUST_CREATED ] );
+		$report = Reports::find()->where( [ '<>', 'status', Reports::STATUS_FINISHED ] )->one();
 		if ( !$report )
 			return;
-
-		$report->status = Reports::STATUS_PROCESSING;
-		$report->save();
 
 		try
 		{
 			$this->_getParts( $report );
 			$this->_generateReport( $report );
+			$this->_sendReport( $report );
 		}
 		catch ( \Exception $e )
 		{
@@ -78,6 +76,9 @@ class ReportController extends BaseController
 	 */
 	private function _getParts( Reports $report )
 	{
+		if ( $report->status >= Reports::STATUS_PROCESSING_GOT_PARTS )
+			return;
+
 		$this->log( "Started working on report $report->filename" );
 		$params = $report->getParams();
 
@@ -109,6 +110,9 @@ class ReportController extends BaseController
 			$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i );
 			$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
 		}
+
+		$report->status = Reports::STATUS_PROCESSING_GOT_PARTS;
+		$report->save();
 	}
 
 	/**
@@ -116,6 +120,9 @@ class ReportController extends BaseController
 	 */
 	private function _generateReport( Reports $report )
 	{
+		if ( $report->status >= Reports::STATUS_PROCESSING_GENERATED_FINAL_CSV )
+			return;
+
 		$this->log( "Creating final csv" );
 
 		$finalCsvHandle = fopen( $report->getCsvPath(), 'w' );
@@ -170,7 +177,7 @@ class ReportController extends BaseController
 
 		fclose( $finalCsvHandle );
 
-		$report->status = Reports::STATUS_FINISHED;
+		$report->status = Reports::STATUS_PROCESSING_GENERATED_FINAL_CSV;
 		$report->save();
 	}
 
@@ -192,5 +199,26 @@ class ReportController extends BaseController
 		fclose( $handle );
 
 		return $linecount;
+	}
+
+	/**
+	 * @param Reports $report
+	 */
+	private function _sendReport( Reports $report )
+	{
+		$c = \Yii::$app->mailer->compose()
+			->setTo( $report->email )
+			->setSubject( "Report" )
+			->setTextBody( "Report is in attachments" )
+			->setFrom( 'admin@clcdatahub.com' )
+			->attach( $report->getCsvPath(), [ 'fileName' => 'report.csv', 'contentType' => 'text/csv' ] )
+			->send();
+
+		if ( $c )
+		{
+			$report->status = Reports::STATUS_FINISHED;
+			$report->save();
+			$this->log( "Mail sended to $report->email" );
+		}
 	}
 }
