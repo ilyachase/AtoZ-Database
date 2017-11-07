@@ -48,6 +48,9 @@ class ApiController extends Controller
 		$report = Reports::findOne( $id );
 		if ( !$report )
 			throw new HttpException( 404, "Report with such id not found." );
+		if ( !$report->status != Reports::STATUS_FINISHED )
+			throw new HttpException( 400, "Report is not finished yet." );
+
 		header( 'Content-Type: application/json; charset=UTF-8' );
 
 		$handle = fopen( $report->getJsonFile(), 'r' );
