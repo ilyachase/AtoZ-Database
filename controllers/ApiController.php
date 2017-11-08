@@ -60,6 +60,5 @@ class ApiController extends Controller
 			ob_flush();
 			flush();
 		}
-
 	}
 }

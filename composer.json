@@ -20,7 +20,8 @@
         "yiisoft/yii2-swiftmailer": "~2.0.0",
         "symfony/dom-crawler": "^3.3",
         "linslin/yii2-curl": "*",
-        "symfony/css-selector": "^3.3"
+        "symfony/css-selector": "^3.3",
+        "yiisoft/yii2-httpclient": "^2.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
