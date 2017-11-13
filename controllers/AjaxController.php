@@ -97,11 +97,12 @@ class AjaxController extends Controller
 	 */
 	public function actionGetcount()
 	{
-		$cacheKey = __METHOD__ . '/' . sha1( var_export( \Yii::$app->request->post( 'keywords' ), true ) );
+		$cacheKey = __METHOD__ . '/' . sha1( var_export( \Yii::$app->request->post( 'keywords' ), true ) . \Yii::$app->request->post( 'keyword' ) );
 
 		$data = \Yii::$app->cache->get( $cacheKey );
 		if ( $data === false )
 		{
+			$this->_client->getKeywordsAutocomplete( \Yii::$app->request->post( 'keyword' ) );
 			$data = $this->_client->getCount( \Yii::$app->request->post( 'keywords' ) );
 			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
 		}

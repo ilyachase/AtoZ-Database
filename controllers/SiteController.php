@@ -73,9 +73,8 @@ class SiteController extends Controller
 		{
 			$client = new Client();
 			$client->checkLogin();
-
-			// TODO: too many results
 			$client->getKeywordsAutocomplete( $keyword );
+
 			$data = $client->getSearchResult( $keywords, $page );
 			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
 		}

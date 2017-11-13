@@ -87,7 +87,7 @@ $( function () {
 		$.ajax( {
 			method    : 'post',
 			url       : '/ajax/getcount',
-			data      : {'keywords': get_selected_keywords()},
+			data      : {'keywords': get_selected_keywords(), 'keyword': enteredKeyword},
 			beforeSend: function () {
 				$button.attr( 'disabled', true );
 				$( '#loader' ).show();

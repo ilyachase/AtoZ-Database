@@ -12,9 +12,12 @@ class Client
 	/** @var Curl */
 	private $_curl;
 
+	/** @var string */
+	private $_cookiePath;
+
 	public function __construct()
 	{
-		$cookiePath = \Yii::getAlias( "@runtime" ) . DS . 'cookie.txt';
+		$this->_cookiePath = tempnam( \Yii::getAlias( "@runtime" ) . DS . 'cookie', 'cookie' );
 		$this->_curl = new Curl();
 		$this->_curl->reset()
 			->setOptions( [
@@ -27,19 +30,21 @@ class Client
 				CURLOPT_TIMEOUT        => 120,
 				CURLOPT_MAXREDIRS      => 10,
 				CURLOPT_SSL_VERIFYPEER => 0,
-				CURLOPT_COOKIEJAR      => $cookiePath,
-				CURLOPT_COOKIEFILE     => $cookiePath,
+				CURLOPT_COOKIEJAR      => $this->_cookiePath,
+				CURLOPT_COOKIEFILE     => $this->_cookiePath,
 			] );
+	}
+
+	public function __destruct()
+	{
+		if ( $this->_curl->curl !== null )
+			curl_close( $this->_curl->curl );
+		if ( file_exists( $this->_cookiePath ) )
+			unlink( $this->_cookiePath );
 	}
 
 	public function checkLogin()
 	{
-		$this->_curl->get( 'https://www.atozdatabases.com/search' );
-		if ( strpos( $this->_curl->response, 'WHAT YOUR PATRONS WANT' ) === false )
-		{
-			return;
-		}
-
 		$this->_curl->get( 'https://www.carnegielibrary.org/research/page/3/' );
 		$this->_curl->get( 'https://www.atozdatabases.com/' );
 		$this->_curl
@@ -177,7 +182,11 @@ class Client
 		return $this->_curl->response;
 	}
 
-	//TODO: use keywords and keyword steps
+	/**
+	 * @param string $id
+	 *
+	 * @return array
+	 */
 	public function getDetails( $id )
 	{
 		$this->_curl->setRequestBody( "accountId=2011000265&isInternal=false&refURL=https%3A%2F%2Fwww.carnegielibrary.org%2Fresearch%2Fpage%2F3%2F&libraryCardId=11812015896843" )
