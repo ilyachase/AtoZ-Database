@@ -24,7 +24,7 @@ $config = [
 					'logFile'        => '@runtime/logs/trace.log',
 					'levels'         => [ 'trace' ],
 					'logVars'        => [],
-					'exportInterval' => 10,
+					'exportInterval' => 3,
 				],
 			],
 		],
