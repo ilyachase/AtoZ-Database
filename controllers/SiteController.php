@@ -119,7 +119,7 @@ class SiteController extends Controller
 	{
 		$cacheKey = __METHOD__ . '/' . sha1( var_export( $id, true ) );
 
-		$data =false;// \Yii::$app->cache->get( $cacheKey );
+		$data = \Yii::$app->cache->get( $cacheKey );
 		if ( $data === false )
 		{
 			$client = new Client();
