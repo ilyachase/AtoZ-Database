@@ -31,6 +31,8 @@ $this->title = 'Report';
 					<?php if ( $model->status == Reports::STATUS_FINISHED ): ?>
 						<dt>Result csv</dt>
 						<dd><?= Html::a( 'Download', [ '/site/report/', 'id' => $model->filename, 'action' => 'download' ] ) ?></dd>
+						<dt>API results endpoint</dt>
+						<dd><?= Html::a( 'Results', [ '/api/report', 'id' => $model->filename ] ) ?></dd>
 					<?php endif; ?>
 				</dl>
 			<?php endif; ?>
