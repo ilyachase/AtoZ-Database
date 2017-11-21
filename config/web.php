@@ -33,8 +33,14 @@ $config = [
 			'traceLevel' => YII_DEBUG ? 3 : 0,
 			'targets'    => [
 				[
-					'class'  => 'yii\log\FileTarget',
-					'levels' => [ 'error', 'warning' ],
+					'class'   => 'yii\log\EmailTarget',
+					'levels'  => [ 'error', 'warning' ],
+					'message' => [
+						'from'    => [ 'admin@clcdatahub.com' ],
+						'to'      => [ 'ilya.chase@yandex.ru' ],
+						'subject' => 'Atoz service log',
+					],
+					'enabled' => !YII_DEBUG,
 				],
 			],
 		],
