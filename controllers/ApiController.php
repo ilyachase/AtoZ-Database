@@ -3,12 +3,26 @@
 namespace app\controllers;
 
 use app\models\activerecord\Reports;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\HttpException;
 use yii\web\Response;
 
 class ApiController extends Controller
 {
+	public function behaviors()
+	{
+		return [
+			'verbs' => [
+				'class'   => VerbFilter::className(),
+				'actions' => [
+					'report'      => [ 'get' ],
+					'report-info' => [ 'get' ],
+				],
+			]
+		];
+	}
+
 	/**
 	 * @inheritdoc
 	 */
@@ -60,5 +74,24 @@ class ApiController extends Controller
 			ob_flush();
 			flush();
 		}
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return array
+	 * @throws HttpException
+	 */
+	public function actionReportInfo( $id )
+	{
+		$report = Reports::findOne( $id );
+		if ( !$report )
+			throw new HttpException( 404, "Report with such id not found." );
+
+		$statusHtml = $report->getStatusHtml();
+		$report = $report->toArray();
+		$report['status_html'] = $statusHtml;
+
+		return $report;
 	}
 }

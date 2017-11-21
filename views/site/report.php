@@ -25,17 +25,56 @@ $this->title = 'Report';
 					<dt>Email for report</dt>
 					<dd><?= $model->email ?></dd>
 					<dt>Report working status</dt>
-					<dd><?= $model->getStatusHtml() ?></dd>
+					<dd id="status"><?= $model->getStatusHtml() ?></dd>
 					<dt>Report rows count</dt>
-					<dd><?= $model->count ?></dd>
-					<?php if ( $model->status == Reports::STATUS_FINISHED ): ?>
+					<dd id="count"><?= $model->count ?></dd>
+					<div id="results_wrap"<?php if ( $model->status !== Reports::STATUS_FINISHED ): ?> style="display: none"<?php endif; ?>>
 						<dt>Result csv</dt>
 						<dd><?= Html::a( 'Download', [ '/site/report/', 'id' => $model->filename, 'action' => 'download' ] ) ?></dd>
 						<dt>API results endpoint</dt>
 						<dd><?= Html::a( 'Results', [ '/api/report', 'id' => $model->filename ] ) ?></dd>
-					<?php endif; ?>
+					</div>
 				</dl>
 			<?php endif; ?>
 		</div>
 	</div>
 </div>
+
+<script type="text/javascript">
+	var status = <?= $model->status ?>;
+
+	function delayedRecursiveUpdater()
+	{
+		if ( status == <?= Reports::STATUS_FINISHED ?> )
+			return;
+
+		setTimeout( function () {
+			$.ajax( '/api/report-info', {
+				data   : {'id': '<?= $model->filename ?>'},
+				success: function ( data ) {
+					status = data.status;
+					fillData( data );
+					delayedRecursiveUpdater();
+				}
+			} );
+		}, 3000 );
+	}
+
+	function fillData( data )
+	{
+		$( '#status' ).html( data.status_html );
+		$( '#count' ).html( data.count );
+
+		if ( status == <?= Reports::STATUS_FINISHED ?> )
+		{
+			$( '#results_wrap' ).show();
+		}
+	}
+
+	$( function () {
+		if ( status == <?= Reports::STATUS_FINISHED ?> )
+			return;
+
+		delayedRecursiveUpdater();
+	} );
+</script>
