@@ -2,10 +2,12 @@
 
 namespace app\controllers;
 
+use app\models\activerecord\Reports;
 use app\models\Client;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
+use yii\web\HttpException;
 
 class AjaxController extends Controller
 {
@@ -38,6 +40,7 @@ class AjaxController extends Controller
 					'keywordautocomplete' => [ 'get' ],
 					'enqueuereport'       => [ 'get' ],
 					'getcount'            => [ 'post' ],
+					'set-interval'        => [ 'get' ],
 				],
 			],
 		];
@@ -65,9 +68,6 @@ class AjaxController extends Controller
 		if ( !\Yii::$app->request->isAjax && \Yii::$app->request->userIP != '127.0.0.1' )
 			return false;
 
-		$this->_client = new Client();
-		$this->_client->checkLogin();
-
 		\Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
 		return parent::beforeAction( $action );
@@ -85,6 +85,9 @@ class AjaxController extends Controller
 		$data = \Yii::$app->cache->get( $cacheKey );
 		if ( $data === false )
 		{
+			$this->_client = new Client();
+			$this->_client->checkLogin();
+
 			$data = $this->_client->getKeywordsAutocomplete( $keyword );
 			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
 		}
@@ -102,6 +105,9 @@ class AjaxController extends Controller
 		$data = \Yii::$app->cache->get( $cacheKey );
 		if ( $data === false )
 		{
+			$this->_client = new Client();
+			$this->_client->checkLogin();
+
 			$this->_client->getKeywordsAutocomplete( \Yii::$app->request->post( 'keyword' ) );
 			$data = $this->_client->getCount( \Yii::$app->request->post( 'keywords' ) );
 			\Yii::$app->cache->set( $cacheKey, $data, CACHE_DEFAULT_DURATION );
@@ -119,8 +125,50 @@ class AjaxController extends Controller
 	 */
 	public function actionEnqueuereport( array $keywords, $keyword, $email )
 	{
-		$client = new Client();
+		$this->_client = new Client();
 
-		return $client->enqueueReport( $keywords, $keyword, $email );
+		return $this->_client->enqueueReport( $keywords, $keyword, $email );
+	}
+
+	/**
+	 * @param string $id
+	 *
+	 * @return array
+	 * @throws HttpException
+	 */
+	public function actionReportInfo( $id )
+	{
+		$report = Reports::findOne( $id );
+		if ( !$report )
+			throw new HttpException( 404, "Report with such id not found." );
+
+		$statusHtml = $report->getStatusHtml();
+		$report = $report->toArray();
+		$report['status_html'] = $statusHtml;
+
+		return $report;
+	}
+
+	/**
+	 * @param string $id
+	 * @param int $value
+	 *
+	 * @return bool
+	 * @throws HttpException
+	 */
+	public function actionSetInterval( $id, $value )
+	{
+		$report = Reports::findOne( $id );
+		if ( !$report )
+			throw new HttpException( 404, "Report with such id not found." );
+
+		$value = (int) $value;
+
+		if ( $value < 0 )
+			throw new HttpException( 400, "Incorrect value." );
+
+		$report->repeat_in_days = $value;
+
+		return $report->save();
 	}
 }

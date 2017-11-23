@@ -75,23 +75,4 @@ class ApiController extends Controller
 			flush();
 		}
 	}
-
-	/**
-	 * @param string $id
-	 *
-	 * @return array
-	 * @throws HttpException
-	 */
-	public function actionReportInfo( $id )
-	{
-		$report = Reports::findOne( $id );
-		if ( !$report )
-			throw new HttpException( 404, "Report with such id not found." );
-
-		$statusHtml = $report->getStatusHtml();
-		$report = $report->toArray();
-		$report['status_html'] = $statusHtml;
-
-		return $report;
-	}
 }

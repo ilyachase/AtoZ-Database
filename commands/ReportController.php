@@ -34,7 +34,17 @@ class ReportController extends BaseController
 	public function actionIndex()
 	{
 		ini_set( 'memory_limit', '128M' );
-		$report = Reports::find()->where( [ '<>', 'status', Reports::STATUS_FINISHED ] )->one();
+		$report = Reports::find()->where( [ '=', 'status', Reports::STATUS_JUST_CREATED ] )->one();
+		if ( !$report )
+		{
+			$query = \Yii::$app->db->createCommand( 'SELECT filename, last_finished, repeat_in_days FROM `reports` WHERE last_finished IS NOT NULL AND repeat_in_days IS NOT NULL AND repeat_in_days != 0 AND UNIX_TIMESTAMP(last_finished) < UNIX_TIMESTAMP(CURRENT_TIMESTAMP) - 86400 * repeat_in_days' )->queryOne();
+			if ( $query && isset( $query['filename'] ) )
+			{
+				$report = Reports::findOne( $query['filename'] );
+				$report->status = Reports::STATUS_JUST_CREATED;
+			}
+		}
+
 		if ( !$report )
 			return;
 

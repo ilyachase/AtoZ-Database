@@ -13,6 +13,8 @@ use yii\base\Exception;
  * @property integer $status
  * @property integer $count
  * @property string $created
+ * @property string $last_finished
+ * @property integer $repeat_in_days
  */
 class Reports extends \yii\db\ActiveRecord
 {
@@ -44,8 +46,8 @@ class Reports extends \yii\db\ActiveRecord
 		return [
 			[ [ 'filename', 'email' ], 'required' ],
 			[ [ 'params' ], 'string' ],
-			[ [ 'status', 'count' ], 'integer' ],
-			[ [ 'created' ], 'safe' ],
+			[ [ 'status', 'count', 'repeat_in_days' ], 'integer' ],
+			[ [ 'created', 'last_finished' ], 'safe' ],
 			[ [ 'filename', 'email' ], 'string', 'max' => 255 ],
 		];
 	}
@@ -56,12 +58,14 @@ class Reports extends \yii\db\ActiveRecord
 	public function attributeLabels()
 	{
 		return [
-			'filename' => 'Filename',
-			'email'    => 'Email',
-			'params'   => 'Params',
-			'status'   => 'Status',
-			'count'    => 'Count',
-			'created'  => 'Created',
+			'filename'       => 'Filename',
+			'email'          => 'Email',
+			'params'         => 'Params',
+			'status'         => 'Status',
+			'count'          => 'Count',
+			'created'        => 'Created',
+			'last_finished'  => 'Last Finished',
+			'repeat_in_days' => 'Repeat In Days',
 		];
 	}
 
