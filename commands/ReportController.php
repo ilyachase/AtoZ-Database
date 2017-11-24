@@ -108,13 +108,15 @@ class ReportController extends BaseController
 
 			if ( $i % self::PAGES_LIMIT == 0 )
 			{
-				$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i );
-				$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
+//				$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i );
+//				$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
 				$lastI = $i;
 				$keywords = [];
 			}
 		}
 
+		$emails = $client->extractEmails( $keywords );
+erd(123);
 		if ( count( $keywords ) )
 		{
 			$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i );

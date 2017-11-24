@@ -21,6 +21,14 @@ class m171113_133548_cookie_dir extends Migration
 			if ( $check )
 				echo "$dir created.\n";
 		}
+
+		$dir = \Yii::getAlias( "@runtime" ) . DS . 'details';
+		if ( !file_exists( $dir ) )
+		{
+			$check = mkdir( $dir );
+			if ( $check )
+				echo "$dir created.\n";
+		}
 	}
 
 	public function safeDown()
