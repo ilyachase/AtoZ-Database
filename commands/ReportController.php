@@ -115,8 +115,9 @@ class ReportController extends BaseController
 			}
 		}
 
-		$emails = $client->extractEmails( $keywords );
-erd(123);
+//		$emails = $client->extractEmails( $keywords );
+		$emails = $client->extractEmails( array_slice( $keywords, 0, 6 ) );
+		erd( 123 );
 		if ( count( $keywords ) )
 		{
 			$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i );

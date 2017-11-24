@@ -9,7 +9,7 @@ use yii\web\HttpException;
 
 class Client
 {
-	const PROCESSES_NUM = 10;
+	const PROCESSES_NUM = 2; // TODO: 10
 
 	/** @var Curl */
 	private $_curl;
@@ -228,6 +228,8 @@ class Client
 	 */
 	public function extractEmails( $keywords )
 	{
+		$result = [];
+
 		$details = [];
 		if ( !function_exists( 'pcntl_fork' ) || count( $keywords ) == 1 )
 		{
@@ -236,16 +238,14 @@ class Client
 				$details[] = $this->getDetails( $keyword );
 			}
 
-			return $this->_exctractEmails( $details );
+			return $this->_extractEmails( $details );
 		}
 		else
 		{
 			$pid = null;
 			$step = 0;
-			er( "keywords count: " . count( $keywords ) );
 			while ( self::PROCESSES_NUM * $step < count( $keywords ) )
 			{
-				er( "step: $step" );
 				for ( $currentProcessNum = 0 + self::PROCESSES_NUM * $step; $currentProcessNum < self::PROCESSES_NUM * ( $step + 1 ); $currentProcessNum++ )
 				{
 					$pid = pcntl_fork();
@@ -264,21 +264,53 @@ class Client
 
 				if ( !isset( $keywords[$currentProcessNum] ) )
 					exit( 0 );
-				er( "current i: $currentProcessNum" );
 				$client = new Client();
 				$client->checkLogin();
 				$details = $client->getDetails( $keywords[$currentProcessNum] );
-				file_put_contents( \Yii::getAlias( '@runtime' ) . DS . 'details' . DS . $keywords[$currentProcessNum], json_encode( $details ) );
+				file_put_contents( $this->_getDetailsTempFilename( $keywords[$currentProcessNum] ), serialize( $details ) );
 
 				exit( 0 );
 			}
 
-			erd( 'finally' );
+			foreach ( $keywords as $keyword )
+			{
+				if ( !file_exists( $this->_getDetailsTempFilename( $keyword ) ) || !( $data = file_get_contents( $this->_getDetailsTempFilename( $keyword ) ) ) )
+					continue;
+
+				$result[$keyword] = $this->_extractEmails( unserialize( $data ) );
+				unlink( $this->_getDetailsTempFilename( $keyword ) );
+			}
 		}
+
+		return $result;
 	}
 
-	private function _exctractEmails( $details )
+	/**
+	 * @param \StdClass $data
+	 *
+	 * @return array
+	 */
+	private function _extractEmails( $data )
 	{
-		return $details;
+		$result = [];
+		if ( isset( $data->{'Executive Directory'}[0] ) && isset( $data->{'Executive Directory'}[0][1] ) && count( $data->{'Executive Directory'}[0][1] ) )
+		{
+			foreach ( $data->{'Executive Directory'}[0][1] as $k => $row )
+			{
+				if ()
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $keyword
+	 *
+	 * @return string
+	 */
+	private function _getDetailsTempFilename( $keyword )
+	{
+		return \Yii::getAlias( '@runtime' ) . DS . 'details' . DS . $keyword . '.txt';
 	}
 }
