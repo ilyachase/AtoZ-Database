@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\commands\ReportController;
 use app\models\activerecord\Reports;
 use app\models\report\Params;
 use \linslin\yii2\curl\Curl;
@@ -181,7 +182,27 @@ class Client
 		$this->_curl
 			->post( 'https://www.atozdatabases.com/exportdownload.htm' );
 
-		return $this->_curl->response;
+		$result = $this->_curl->response;
+
+		$result = explode( "\n", $result );
+
+		foreach ( $result as $k => $line )
+		{
+			if ( $k == 0 )
+			{
+				$result[$k] .= ReportController::CSV_ROW_KEYWORD . ",";
+				continue;
+			}
+
+			if ( $k == count( $result ) - 1 )
+				break;
+
+			$result[$k] .= '"' . $csvKeywords[$k - 1] . '",';
+		}
+
+		$result = implode( "\n", $result );
+
+		return $result;
 	}
 
 	/**

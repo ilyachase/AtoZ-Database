@@ -13,7 +13,6 @@ use yii\base\Exception;
  * @property integer $status
  * @property integer $count
  * @property string $created
- * @property string $last_finished
  * @property integer $repeat_in_days
  * @property integer $in_work
  */
@@ -48,7 +47,7 @@ class Reports extends \yii\db\ActiveRecord
 			[ [ 'filename', 'email' ], 'required' ],
 			[ [ 'params' ], 'string' ],
 			[ [ 'status', 'count', 'repeat_in_days', 'in_work' ], 'integer' ],
-			[ [ 'created', 'last_finished' ], 'safe' ],
+			[ [ 'created', ], 'safe' ],
 			[ [ 'filename', 'email' ], 'string', 'max' => 255 ],
 		];
 	}
@@ -65,7 +64,6 @@ class Reports extends \yii\db\ActiveRecord
 			'status'         => 'Status',
 			'count'          => 'Count',
 			'created'        => 'Created',
-			'last_finished'  => 'Last Finished',
 			'repeat_in_days' => 'Repeat In Days',
 			'in_work'        => 'In Work',
 		];

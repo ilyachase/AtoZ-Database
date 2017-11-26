@@ -18,6 +18,7 @@ class ReportController extends BaseController
 	const CSV_ROW_EX_TITLE_I = 'Executive Title ';
 	const CSV_ROW_EX_FIRSTNAME_I = 'Executive First Name ';
 	const CSV_ROW_EX_LASTNAME_I = 'Executive Last Name ';
+	const CSV_ROW_KEYWORD = 'keyword';
 
 	const EX_MAX_I = 20;
 
@@ -29,6 +30,7 @@ class ReportController extends BaseController
 		self::CSV_ROW_STATE,
 		'Executive Title',
 		'Executive Name',
+		'Executive Email',
 	];
 
 	public function actionIndex()
@@ -41,7 +43,7 @@ class ReportController extends BaseController
 
 		if ( !$report )
 		{
-			$query = \Yii::$app->db->createCommand( 'SELECT filename, last_finished, repeat_in_days FROM `reports` WHERE last_finished IS NOT NULL AND repeat_in_days IS NOT NULL AND in_work = 0 AND repeat_in_days != 0 AND UNIX_TIMESTAMP(last_finished) < UNIX_TIMESTAMP(CURRENT_TIMESTAMP) - 86400 * repeat_in_days' )->queryOne();
+			$query = \Yii::$app->db->createCommand( 'SELECT filename, created, repeat_in_days FROM `reports` WHERE created IS NOT NULL AND repeat_in_days IS NOT NULL AND in_work = 0 AND repeat_in_days != 0 AND UNIX_TIMESTAMP(created) < UNIX_TIMESTAMP(CURRENT_TIMESTAMP) - 86400 * repeat_in_days' )->queryOne();
 			if ( $query && isset( $query['filename'] ) )
 			{
 				$report = Reports::findOne( $query['filename'] );
@@ -155,16 +157,19 @@ class ReportController extends BaseController
 		$emails = [];
 		if ( ( $key = array_search( $report->getEmailsFilename(), $files ) ) !== false )
 		{
-			erd( $files[$key] );
+			$emails = unserialize( file_get_contents( $files[$key] ) );
 		}
-		erd( '?' );
+
+		fputcsv( $finalCsvHandle, $this->_finalCsvColumnsTitle );
 		foreach ( $files as $file )
 		{
+			if ( $file == $report->getEmailsFilename() )
+				continue;
+
 			$this->log( "File: $file" );
 			$partSourceHandle = fopen( $file, 'r' );
 
 			$columns = fgetcsv( $partSourceHandle );
-			fputcsv( $finalCsvHandle, $this->_finalCsvColumnsTitle );
 			while ( ( $data = fgetcsv( $partSourceHandle ) ) !== false )
 			{
 				$namedSourceRow = [];
@@ -187,6 +192,15 @@ class ReportController extends BaseController
 							$namedSourceRow[self::CSV_ROW_EX_TITLE_I . $i],
 							$namedSourceRow[self::CSV_ROW_EX_FIRSTNAME_I . $i] . ' ' . $namedSourceRow[self::CSV_ROW_EX_LASTNAME_I . $i],
 						];
+
+						if ( isset( $emails[$namedSourceRow[self::CSV_ROW_KEYWORD]] ) && isset( $emails[$namedSourceRow[self::CSV_ROW_KEYWORD]][$i - 1] ) )
+						{
+							$rowToInsert[] = $emails[$namedSourceRow[self::CSV_ROW_KEYWORD]][$i - 1];
+						}
+						else
+						{
+							$rowToInsert[] = '';
+						}
 
 						fputcsv( $finalCsvHandle, $rowToInsert );
 
