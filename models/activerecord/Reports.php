@@ -15,6 +15,7 @@ use yii\base\Exception;
  * @property string $created
  * @property string $last_finished
  * @property integer $repeat_in_days
+ * @property integer $in_work
  */
 class Reports extends \yii\db\ActiveRecord
 {
@@ -46,7 +47,7 @@ class Reports extends \yii\db\ActiveRecord
 		return [
 			[ [ 'filename', 'email' ], 'required' ],
 			[ [ 'params' ], 'string' ],
-			[ [ 'status', 'count', 'repeat_in_days' ], 'integer' ],
+			[ [ 'status', 'count', 'repeat_in_days', 'in_work' ], 'integer' ],
 			[ [ 'created', 'last_finished' ], 'safe' ],
 			[ [ 'filename', 'email' ], 'string', 'max' => 255 ],
 		];
@@ -66,6 +67,7 @@ class Reports extends \yii\db\ActiveRecord
 			'created'        => 'Created',
 			'last_finished'  => 'Last Finished',
 			'repeat_in_days' => 'Repeat In Days',
+			'in_work'        => 'In Work',
 		];
 	}
 
@@ -97,11 +99,12 @@ class Reports extends \yii\db\ActiveRecord
 	 * @param string $csvReport
 	 * @param string $lastI
 	 * @param string $i
+	 * @param array $emails
 	 *
 	 * @return string
 	 * @throws Exception
 	 */
-	public function saveCsvReportPart( $csvReport, $lastI, $i )
+	public function saveCsvReportPart( $csvReport, $lastI, $i, array $emails )
 	{
 		if ( !$csvReport )
 			throw new Exception( "csvReport is empty" );
@@ -114,6 +117,16 @@ class Reports extends \yii\db\ActiveRecord
 
 		$filename = $this->getReportPartsDir() . DS . $lastI . '_' . $i . '.csv';
 		file_put_contents( $filename, $csvReport );
+
+		if ( count( $emails ) )
+		{
+			$filename = $this->getEmailsFilename();
+			if ( file_exists( $filename ) )
+			{
+				$emails = array_merge( unserialize( file_get_contents( $filename ) ), $emails );
+			}
+			file_put_contents( $filename, serialize( $emails ) );
+		}
 
 		return $filename;
 	}
@@ -166,5 +179,13 @@ class Reports extends \yii\db\ActiveRecord
 	public function getJsonFile()
 	{
 		return $this->getReportDir() . DS . 'report.json';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getEmailsFilename()
+	{
+		return $this->getReportPartsDir() . DS . 'emails.txt';
 	}
 }

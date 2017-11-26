@@ -33,11 +33,15 @@ class ReportController extends BaseController
 
 	public function actionIndex()
 	{
-		ini_set( 'memory_limit', '128M' );
-		$report = Reports::find()->where( [ '=', 'status', Reports::STATUS_JUST_CREATED ] )->one();
+		ini_set( 'memory_limit', '256M' );
+		$report = Reports::find()
+			->where( [ '!=', 'status', Reports::STATUS_FINISHED ] )
+			->andWhere( [ 'in_work' => false ] )
+			->one();
+
 		if ( !$report )
 		{
-			$query = \Yii::$app->db->createCommand( 'SELECT filename, last_finished, repeat_in_days FROM `reports` WHERE last_finished IS NOT NULL AND repeat_in_days IS NOT NULL AND repeat_in_days != 0 AND UNIX_TIMESTAMP(last_finished) < UNIX_TIMESTAMP(CURRENT_TIMESTAMP) - 86400 * repeat_in_days' )->queryOne();
+			$query = \Yii::$app->db->createCommand( 'SELECT filename, last_finished, repeat_in_days FROM `reports` WHERE last_finished IS NOT NULL AND repeat_in_days IS NOT NULL AND in_work = 0 AND repeat_in_days != 0 AND UNIX_TIMESTAMP(last_finished) < UNIX_TIMESTAMP(CURRENT_TIMESTAMP) - 86400 * repeat_in_days' )->queryOne();
 			if ( $query && isset( $query['filename'] ) )
 			{
 				$report = Reports::findOne( $query['filename'] );
@@ -48,6 +52,12 @@ class ReportController extends BaseController
 		if ( !$report )
 			return;
 
+		$tr = \Yii::$app->db->beginTransaction();
+		$report->in_work = true;
+		$tr->commit();
+
+		$this->log( "Started working on report $report->filename" );
+
 		try
 		{
 			$this->_getParts( $report );
@@ -56,7 +66,7 @@ class ReportController extends BaseController
 		}
 		catch ( \Exception $e )
 		{
-			$report->status = Reports::STATUS_JUST_CREATED;
+			$report->in_work = false;
 			$report->save();
 
 			throw $e;
@@ -89,7 +99,8 @@ class ReportController extends BaseController
 		if ( $report->status >= Reports::STATUS_PROCESSING_GOT_PARTS )
 			return;
 
-		$this->log( "Started working on report $report->filename" );
+		$this->log( "Entering 'getting parts' step." );
+
 		$params = $report->getParams();
 
 		$client = new Client();
@@ -108,19 +119,18 @@ class ReportController extends BaseController
 
 			if ( $i % self::PAGES_LIMIT == 0 )
 			{
-//				$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i );
-//				$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
+				$emails = $client->extractEmails( $keywords );
+				$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i, $emails );
+				$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
 				$lastI = $i;
 				$keywords = [];
 			}
 		}
 
-//		$emails = $client->extractEmails( $keywords );
-		$emails = $client->extractEmails( array_slice( $keywords, 0, 6 ) );
-		erd( 123 );
 		if ( count( $keywords ) )
 		{
-			$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i );
+			$emails = $client->extractEmails( $keywords );
+			$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i, $emails );
 			$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
 		}
 
@@ -136,12 +146,18 @@ class ReportController extends BaseController
 		if ( $report->status >= Reports::STATUS_PROCESSING_GENERATED_FINAL_CSV )
 			return;
 
-		$this->log( "Creating final csv" );
+		$this->log( "Entering 'generate report' step." );
 
 		$finalCsvHandle = fopen( $report->getCsvPath(), 'w' );
 		$files = FileHelper::findFiles( $report->getReportPartsDir() );
 		natsort( $files );
 
+		$emails = [];
+		if ( ( $key = array_search( $report->getEmailsFilename(), $files ) ) !== false )
+		{
+			erd( $files[$key] );
+		}
+		erd( '?' );
 		foreach ( $files as $file )
 		{
 			$this->log( "File: $file" );

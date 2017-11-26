@@ -187,7 +187,7 @@ class Client
 	/**
 	 * @param string $id
 	 *
-	 * @return array
+	 * @return \StdClass
 	 */
 	public function getDetails( $id )
 	{
@@ -230,15 +230,18 @@ class Client
 	{
 		$result = [];
 
-		$details = [];
 		if ( !function_exists( 'pcntl_fork' ) || count( $keywords ) == 1 )
 		{
+			$client = new Client();
+			$client->checkLogin();
+
 			foreach ( $keywords as $keyword )
 			{
-				$details[] = $this->getDetails( $keyword );
+				$details = $client->getDetails( $keyword );
+				$result[$keyword] = $this->_extractEmails( $details );
 			}
 
-			return $this->_extractEmails( $details );
+			return $result;
 		}
 		else
 		{
@@ -297,7 +300,12 @@ class Client
 		{
 			foreach ( $data->{'Executive Directory'}[0][1] as $k => $row )
 			{
-				if ()
+				if ( strpos( $row[1], '<br/>' ) !== false )
+				{
+					$email = explode( '<br/>', $row[1] );
+					$email = trim( array_pop( $email ) );
+					$result[$k] = $email;
+				}
 			}
 		}
 
