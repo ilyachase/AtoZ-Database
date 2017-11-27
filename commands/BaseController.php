@@ -44,7 +44,7 @@ class BaseController extends Controller
 	 * @param bool $eol
 	 * @param bool $withoutTrace
 	 */
-	protected function log( $string, $eol = true, $withoutTrace = false )
+	public static function log( $string, $eol = true, $withoutTrace = false )
 	{
 		if ( !$withoutTrace )
 			\Yii::trace( $string, __METHOD__ );

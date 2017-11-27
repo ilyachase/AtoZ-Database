@@ -69,6 +69,8 @@ class ReportController extends BaseController
 		catch ( \Exception $e )
 		{
 			$report->in_work = false;
+			\Yii::$app->db->close();
+			\Yii::$app->db->open();
 			$report->save();
 
 			throw $e;
@@ -121,9 +123,9 @@ class ReportController extends BaseController
 
 			if ( $i % self::PAGES_LIMIT == 0 )
 			{
-				$emails = $client->extractEmails( $keywords );
+				$emails = $client->extractEmails( $keywords, $report );
 				$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i, $emails );
-				$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
+				$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i (of $data->totalpages total)." );
 				$lastI = $i;
 				$keywords = [];
 			}
@@ -131,12 +133,14 @@ class ReportController extends BaseController
 
 		if ( count( $keywords ) )
 		{
-			$emails = $client->extractEmails( $keywords );
+			$emails = $client->extractEmails( $keywords, $report );
 			$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i, $emails );
 			$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
 		}
 
 		$report->status = Reports::STATUS_PROCESSING_GOT_PARTS;
+		\Yii::$app->db->close();
+		\Yii::$app->db->open();
 		$report->save();
 	}
 
@@ -151,13 +155,15 @@ class ReportController extends BaseController
 		$this->log( "Entering 'generate report' step." );
 
 		$finalCsvHandle = fopen( $report->getCsvPath(), 'w' );
-		$files = FileHelper::findFiles( $report->getReportPartsDir() );
+		$files = FileHelper::findFiles( $report->getCreateReportPartsDir() );
 		natsort( $files );
 
 		$emails = [];
+		$emailsFilename = null;
 		if ( ( $key = array_search( $report->getEmailsFilename(), $files ) ) !== false )
 		{
-			$emails = unserialize( file_get_contents( $files[$key] ) );
+			$emailsFilename = $files[$key];
+			$emails = unserialize( file_get_contents( $emailsFilename ) );
 		}
 
 		fputcsv( $finalCsvHandle, $this->_finalCsvColumnsTitle );
@@ -219,8 +225,14 @@ class ReportController extends BaseController
 			}
 
 			fclose( $partSourceHandle );
+			unlink( $file );
 			$this->log( '', true, true );
 		}
+
+		if ( $emailsFilename )
+			unlink( $emailsFilename );
+
+		rmdir( $report->getCreateReportPartsDir( false ) );
 
 		fclose( $finalCsvHandle );
 

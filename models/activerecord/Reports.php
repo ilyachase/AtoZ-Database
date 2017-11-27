@@ -107,23 +107,17 @@ class Reports extends \yii\db\ActiveRecord
 		if ( !$csvReport )
 			throw new Exception( "csvReport is empty" );
 
-		if ( !file_exists( $this->getReportDir() ) )
-			mkdir( $this->getReportDir() );
-
-		if ( !file_exists( $this->getReportPartsDir() ) )
-			mkdir( $this->getReportPartsDir() );
-
-		$filename = $this->getReportPartsDir() . DS . $lastI . '_' . $i . '.csv';
+		$filename = $this->getCreateReportPartsDir() . DS . $lastI . '_' . $i . '.csv';
 		file_put_contents( $filename, $csvReport );
 
 		if ( count( $emails ) )
 		{
-			$filename = $this->getEmailsFilename();
-			if ( file_exists( $filename ) )
+			$emailsFilename = $this->getEmailsFilename();
+			if ( file_exists( $emailsFilename ) )
 			{
-				$emails = array_merge( unserialize( file_get_contents( $filename ) ), $emails );
+				$emails = array_merge( unserialize( file_get_contents( $emailsFilename ) ), $emails );
 			}
-			file_put_contents( $filename, serialize( $emails ) );
+			file_put_contents( $emailsFilename, serialize( $emails ) );
 		}
 
 		return $filename;
@@ -150,17 +144,29 @@ class Reports extends \yii\db\ActiveRecord
 	/**
 	 * @return string
 	 */
-	public function getReportDir()
+	public function getCreateReportDir()
 	{
-		return \Yii::getAlias( '@runtime' ) . DS . 'reports' . DS . $this->filename;
+		$dirname = \Yii::getAlias( '@runtime' ) . DS . 'reports' . DS . $this->filename;
+
+		if ( !file_exists( $dirname ) )
+			mkdir( $dirname );
+
+		return $dirname;
 	}
 
 	/**
+	 * @param bool $create
+	 *
 	 * @return string
 	 */
-	public function getReportPartsDir()
+	public function getCreateReportPartsDir( $create = true )
 	{
-		return $this->getReportDir() . DS . 'parts';
+		$dirname = $this->getCreateReportDir() . DS . 'parts';
+
+		if ( $create && !file_exists( $dirname ) )
+			mkdir( $dirname );
+
+		return $dirname;
 	}
 
 	/**
@@ -168,7 +174,7 @@ class Reports extends \yii\db\ActiveRecord
 	 */
 	public function getCsvPath()
 	{
-		return $this->getReportDir() . DS . 'report.csv';
+		return $this->getCreateReportDir() . DS . 'report.csv';
 	}
 
 	/**
@@ -176,7 +182,7 @@ class Reports extends \yii\db\ActiveRecord
 	 */
 	public function getJsonFile()
 	{
-		return $this->getReportDir() . DS . 'report.json';
+		return $this->getCreateReportDir() . DS . 'report.json';
 	}
 
 	/**
@@ -184,6 +190,31 @@ class Reports extends \yii\db\ActiveRecord
 	 */
 	public function getEmailsFilename()
 	{
-		return $this->getReportPartsDir() . DS . 'emails.txt';
+		return $this->getCreateReportPartsDir() . DS . 'emails.txt';
+	}
+
+	/**
+	 * @param bool $create
+	 *
+	 * @return string
+	 */
+	public function getCreateDetailsDir( $create = true )
+	{
+		$dirname = $this->getCreateReportDir() . DS . 'details';
+
+		if ( $create && !file_exists( $dirname ) )
+			mkdir( $dirname );
+
+		return $dirname;
+	}
+
+	/**
+	 * @param string $keyword
+	 *
+	 * @return string
+	 */
+	public function getDetailsTempFilename( $keyword )
+	{
+		return $this->getCreateDetailsDir() . DS . $keyword . '.txt';
 	}
 }
