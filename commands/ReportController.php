@@ -56,6 +56,7 @@ class ReportController extends BaseController
 
 		$tr = \Yii::$app->db->beginTransaction();
 		$report->in_work = true;
+		$report->save();
 		$tr->commit();
 
 		$this->log( "Started working on report $report->filename" );
