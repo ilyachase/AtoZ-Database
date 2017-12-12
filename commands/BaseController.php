@@ -11,6 +11,9 @@ class BaseController extends Controller
 	/** @var bool Verbose debug */
 	public $debug = false;
 
+	/** @var bool */
+	private static $_Debug = false;
+
 	/**
 	 * @param string $actionID
 	 *
@@ -19,6 +22,17 @@ class BaseController extends Controller
 	public function options( $actionID )
 	{
 		return [ 'debug' ];
+	}
+
+	/**
+	 * @param \yii\base\Action $action
+	 *
+	 * @return bool
+	 */
+	public function beforeAction( $action )
+	{
+		self::$_Debug = $this->debug;
+		return parent::beforeAction( $action );
 	}
 
 	/**
@@ -49,6 +63,7 @@ class BaseController extends Controller
 		if ( !$withoutTrace )
 			\Yii::trace( $string, __METHOD__ );
 
-		Console::stdout( "$string" . ( $eol ? "\n" : "" ) );
+		if ( self::$_Debug )
+			Console::stdout( "$string" . ( $eol ? "\n" : "" ) );
 	}
 }

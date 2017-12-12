@@ -44,7 +44,7 @@ class Client
 		if ( $this->_curl->curl !== null )
 			curl_close( $this->_curl->curl );
 		if ( file_exists( $this->_cookiePath ) )
-			unlink( $this->_cookiePath );
+			@unlink( $this->_cookiePath );
 	}
 
 	public function checkLogin()

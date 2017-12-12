@@ -107,7 +107,7 @@ class Reports extends \yii\db\ActiveRecord
 		if ( !$csvReport )
 			throw new Exception( "csvReport is empty" );
 
-		$filename = $this->getCreateReportPartsDir() . DS . $lastI . '_' . $i . '.csv';
+		$filename = $this->_getFilepathForPath( $lastI, $i );
 		file_put_contents( $filename, $csvReport );
 
 		if ( count( $emails ) )
@@ -216,5 +216,27 @@ class Reports extends \yii\db\ActiveRecord
 	public function getDetailsTempFilename( $keyword )
 	{
 		return $this->getCreateDetailsDir() . DS . $keyword . '.txt';
+	}
+
+	/**
+	 * @param int $lastI
+	 * @param int $i
+	 *
+	 * @return bool
+	 */
+	public function isHavePart( $lastI, $i )
+	{
+		return file_exists( $this->_getFilepathForPath( $lastI, $i ) );
+	}
+
+	/**
+	 * @param int $lastI
+	 * @param int $i
+	 *
+	 * @return string
+	 */
+	private function _getFilepathForPath( $lastI, $i )
+	{
+		return $this->getCreateReportPartsDir() . DS . $lastI . '_' . $i . '.csv';
 	}
 }

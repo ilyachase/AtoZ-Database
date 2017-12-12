@@ -59,7 +59,7 @@ class ReportController extends BaseController
 		$report->save();
 		$tr->commit();
 
-		$this->log( "Started working on report $report->filename" );
+		self::log( "Started working on report $report->filename" );
 
 		try
 		{
@@ -77,7 +77,7 @@ class ReportController extends BaseController
 			throw $e;
 		}
 
-		$this->log( "", true, true );
+		self::log( "", true, true );
 	}
 
 	/**
@@ -98,13 +98,17 @@ class ReportController extends BaseController
 
 	/**
 	 * @param Reports $report
+	 *
+	 * @throws \yii\base\Exception
+	 * @throws \yii\db\Exception
+	 * @throws \yii\web\HttpException
 	 */
 	private function _getParts( Reports $report )
 	{
 		if ( $report->status >= Reports::STATUS_PROCESSING_GOT_PARTS )
 			return;
 
-		$this->log( "Entering 'getting parts' step." );
+		self::log( "Entering 'getting parts' step." );
 
 		$params = $report->getParams();
 
@@ -114,11 +118,31 @@ class ReportController extends BaseController
 		$client->getKeywordsAutocomplete( $params->keyword );
 		$data = $client->getSearchResult( $params->keywords, 1 );
 
-		$this->log( "Getting keywords" );
+		self::log( "Getting keywords" );
 		$keywords = $this->_extractKeywords( $data );
 
 		$lastI = 1;
 		for ( $i = 2; $i <= $data->totalpages; $i++ )
+		{
+			if ( $i % self::PAGES_LIMIT == 0 )
+			{
+				if ( $report->isHavePart( $lastI, $i ) )
+				{
+					if ( count( $keywords ) )
+						$keywords = [];
+
+					self::log( "Already got part {$lastI}_{$i}, continue..." );
+					$lastI = $i;
+				}
+				else
+				{
+					$i = $lastI + 1;
+					break;
+				}
+			}
+		}
+
+		for ( ; $i <= $data->totalpages; $i++ )
 		{
 			$keywords = array_merge( $keywords, $this->_extractKeywords( $client->getSearchResult( $params->keywords, $i ) ) );
 
@@ -126,7 +150,7 @@ class ReportController extends BaseController
 			{
 				$emails = $client->extractEmails( $keywords, $report );
 				$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i, $emails );
-				$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i (of $data->totalpages total)." );
+				self::log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i (of $data->totalpages total)." );
 				$lastI = $i;
 				$keywords = [];
 			}
@@ -136,7 +160,7 @@ class ReportController extends BaseController
 		{
 			$emails = $client->extractEmails( $keywords, $report );
 			$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i, $emails );
-			$this->log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
+			self::log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
 		}
 
 		$report->status = Reports::STATUS_PROCESSING_GOT_PARTS;
@@ -147,13 +171,15 @@ class ReportController extends BaseController
 
 	/**
 	 * @param Reports $report
+	 *
+	 * @throws \yii\base\InvalidConfigException
 	 */
 	private function _generateReport( Reports $report )
 	{
 		if ( $report->status >= Reports::STATUS_PROCESSING_GENERATED_FINAL_CSV )
 			return;
 
-		$this->log( "Entering 'generate report' step." );
+		self::log( "Entering 'generate report' step." );
 
 		$finalCsvHandle = fopen( $report->getCsvPath(), 'w' );
 		$files = FileHelper::findFiles( $report->getCreateReportPartsDir() );
@@ -173,7 +199,7 @@ class ReportController extends BaseController
 			if ( $file == $report->getEmailsFilename() )
 				continue;
 
-			$this->log( "File: $file" );
+			self::log( "File: $file" );
 			$partSourceHandle = fopen( $file, 'r' );
 
 			$columns = fgetcsv( $partSourceHandle );
@@ -213,7 +239,7 @@ class ReportController extends BaseController
 
 						$report->addJsonEntity( $rowToInsert );
 
-						$this->log( '.', false, true );
+						self::log( '.', false, true );
 						$c++;
 					}
 				}
@@ -227,7 +253,7 @@ class ReportController extends BaseController
 
 			fclose( $partSourceHandle );
 			unlink( $file );
-			$this->log( '', true, true );
+			self::log( '', true, true );
 		}
 
 		if ( $emailsFilename )
@@ -279,7 +305,7 @@ class ReportController extends BaseController
 		{
 			$report->status = Reports::STATUS_FINISHED;
 			$report->save();
-			$this->log( "Mail sended to $report->email" );
+			self::log( "Mail sended to $report->email" );
 		}
 	}
 }
