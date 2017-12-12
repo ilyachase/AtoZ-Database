@@ -11,7 +11,7 @@ use yii\web\HttpException;
 
 class Client
 {
-	const PROCESSES_NUM = 10;
+	const PROCESSES_NUM = 20;
 
 	/** @var Curl */
 	private $_curl;
