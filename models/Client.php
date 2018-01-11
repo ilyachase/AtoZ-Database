@@ -7,6 +7,7 @@ use app\commands\ReportController;
 use app\models\activerecord\Reports;
 use app\models\report\Params;
 use \linslin\yii2\curl\Curl;
+use yii\console\Exception;
 use yii\web\HttpException;
 
 class Client
@@ -166,6 +167,8 @@ class Client
 	 * @param string $keyword
 	 *
 	 * @return string
+	 * @throws Exception
+	 * @throws HttpException
 	 */
 	public function getCsvReport( array $csvKeywords, array $searchKeywords = [], $keyword = '' )
 	{
@@ -177,13 +180,28 @@ class Client
 
 		$keywordsString = urlencode( implode( ',', $csvKeywords ) );
 
-		$this->_curl
-			->setRequestBody( "format=comma&viewMode=custom_export&database=business&customeName=&selectedCheckboxes=$keywordsString&selectedSections=Business+Name%2CFirst+Name%2CLast+Name%2CWebsite%2CPhone%2CPhysical+City%2CPhysical+State%2CExecutive+First+Name+1%2CExecutive+Last+Name+1%2CExecutive+First+Name+2%2CExecutive+Last+Name+2%2CExecutive+First+Name+3%2CExecutive+Last+Name+3%2CExecutive+First+Name+4%2CExecutive+Last+Name+4%2CExecutive+First+Name+5%2CExecutive+Last+Name+5%2CExecutive+First+Name+6%2CExecutive+Last+Name+6%2CExecutive+First+Name+7%2CExecutive+Last+Name+7%2CExecutive+First+Name+8%2CExecutive+Last+Name+8%2CExecutive+First+Name+9%2CExecutive+Last+Name+9%2CExecutive+First+Name+10%2CExecutive+Last+Name+10%2CExecutive+First+Name+11%2CExecutive+Last+Name+11%2CExecutive+First+Name+12%2CExecutive+Last+Name+12%2CExecutive+First+Name+13%2CExecutive+Last+Name+13%2CExecutive+First+Name+14%2CExecutive+Last+Name+14%2CExecutive+First+Name+15%2CExecutive+Last+Name+15%2CExecutive+First+Name+16%2CExecutive+First+Name+17%2CExecutive+Last+Name+16%2CExecutive+Last+Name+17%2CExecutive+First+Name+18%2CExecutive+Last+Name+18%2CExecutive+First+Name+19%2CExecutive+Last+Name+19%2CExecutive+First+Name+20%2CExecutive+Last+Name+20%2CExecutive+Title+1%2CExecutive+Title+2%2CExecutive+Title+3%2CExecutive+Title+4%2CExecutive+Title+5%2CExecutive+Title+6%2CExecutive+Title+7%2CExecutive+Title+8%2CExecutive+Title+9%2CExecutive+Title+10%2CExecutive+Title+11%2CExecutive+Title+12%2CExecutive+Title+13%2CExecutive+Title+14%2CExecutive+Title+15%2CExecutive+Title+16%2CExecutive+Title+17%2CExecutive+Title+18%2CExecutive+Title+19%2CExecutive+Title+20&downloadOptCheckedVal=0&totalRecordCount=38979&searchType=general" )
-			->post( 'https://www.atozdatabases.com/ajax/submitDownload.htm' );
-		$this->_curl
-			->post( 'https://www.atozdatabases.com/exportdownload.htm' );
+		$i = 1;
+		do
+		{
+			$this->_curl
+				->setRequestBody( "format=comma&viewMode=custom_export&database=business&customeName=&selectedCheckboxes=$keywordsString&selectedSections=Business+Name%2CFirst+Name%2CLast+Name%2CWebsite%2CPhone%2CPhysical+City%2CPhysical+State%2CExecutive+First+Name+1%2CExecutive+Last+Name+1%2CExecutive+First+Name+2%2CExecutive+Last+Name+2%2CExecutive+First+Name+3%2CExecutive+Last+Name+3%2CExecutive+First+Name+4%2CExecutive+Last+Name+4%2CExecutive+First+Name+5%2CExecutive+Last+Name+5%2CExecutive+First+Name+6%2CExecutive+Last+Name+6%2CExecutive+First+Name+7%2CExecutive+Last+Name+7%2CExecutive+First+Name+8%2CExecutive+Last+Name+8%2CExecutive+First+Name+9%2CExecutive+Last+Name+9%2CExecutive+First+Name+10%2CExecutive+Last+Name+10%2CExecutive+First+Name+11%2CExecutive+Last+Name+11%2CExecutive+First+Name+12%2CExecutive+Last+Name+12%2CExecutive+First+Name+13%2CExecutive+Last+Name+13%2CExecutive+First+Name+14%2CExecutive+Last+Name+14%2CExecutive+First+Name+15%2CExecutive+Last+Name+15%2CExecutive+First+Name+16%2CExecutive+First+Name+17%2CExecutive+Last+Name+16%2CExecutive+Last+Name+17%2CExecutive+First+Name+18%2CExecutive+Last+Name+18%2CExecutive+First+Name+19%2CExecutive+Last+Name+19%2CExecutive+First+Name+20%2CExecutive+Last+Name+20%2CExecutive+Title+1%2CExecutive+Title+2%2CExecutive+Title+3%2CExecutive+Title+4%2CExecutive+Title+5%2CExecutive+Title+6%2CExecutive+Title+7%2CExecutive+Title+8%2CExecutive+Title+9%2CExecutive+Title+10%2CExecutive+Title+11%2CExecutive+Title+12%2CExecutive+Title+13%2CExecutive+Title+14%2CExecutive+Title+15%2CExecutive+Title+16%2CExecutive+Title+17%2CExecutive+Title+18%2CExecutive+Title+19%2CExecutive+Title+20&downloadOptCheckedVal=0&totalRecordCount=38979&searchType=general" )
+				->post( 'https://www.atozdatabases.com/ajax/submitDownload.htm' );
+			$this->_curl
+				->post( 'https://www.atozdatabases.com/exportdownload.htm' );
 
-		$result = $this->_curl->response;
+			$result = $this->_curl->response;
+
+			if ( !$result )
+				BaseController::log( "Retrying to get csv report ($i)" );
+
+			$i++;
+			if ( $i == 20 )
+				break;
+		}
+		while ( !$result );
+
+		if ( !$result && $i == 20 )
+			throw new Exception( "Can't get csv report. Let's try later. " );
 
 		$result = explode( "\n", $result );
 
