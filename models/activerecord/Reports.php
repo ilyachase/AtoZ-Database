@@ -46,7 +46,8 @@ class Reports extends \yii\db\ActiveRecord
 		return [
 			[ [ 'filename', 'email' ], 'required' ],
 			[ [ 'params' ], 'string' ],
-			[ [ 'status', 'count', 'repeat_in_days', 'in_work' ], 'integer' ],
+			[ [ 'status', 'count', 'repeat_in_days' ], 'integer' ],
+			[ [ 'in_work' ], 'boolean' ],
 			[ [ 'created', ], 'safe' ],
 			[ [ 'filename', 'email' ], 'string', 'max' => 255 ],
 		];
