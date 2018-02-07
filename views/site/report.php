@@ -26,8 +26,12 @@ $this->title = 'Report';
 					<dd><?= $model->email ?></dd>
 					<dt>Report working status</dt>
 					<dd id="status"><?= $model->getStatusHtml() ?></dd>
-					<dt>Report rows count</dt>
-					<dd id="count"><?= $model->count ?></dd>
+					<div id="counts_wrap"<?php if ( $model->status < Reports::STATUS_PROCESSING ): ?> style="display: none"<?php endif; ?>>
+						<dt>Report rows count done</dt>
+						<dd id="count_done"><?= $model->getCountDone() ?></dd>
+						<dt>Report rows count total</dt>
+						<dd id="count_all"><?= $model->count_all !== null ? $model->count_all : 'Unknown' ?></dd>
+					</div>
 					<div id="results_wrap"<?php if ( $model->status !== Reports::STATUS_FINISHED ): ?> style="display: none"<?php endif; ?>>
 						<dt>Result csv</dt>
 						<dd><?= Html::a( 'Download', [ '/site/report/', 'id' => $model->filename, 'action' => 'download' ] ) ?></dd>
@@ -68,7 +72,13 @@ $this->title = 'Report';
 	function fillData( data )
 	{
 		$( '#status' ).html( data.status_html );
-		$( '#count' ).html( data.count );
+		$( '#count_done' ).html( data.count_done );
+		$( '#count_all' ).html( data.count_all );
+
+		if ( status == <?= Reports::STATUS_PROCESSING ?> )
+		{
+			$( '#counts_wrap' ).show();
+		}
 
 		if ( status == <?= Reports::STATUS_FINISHED ?> )
 		{

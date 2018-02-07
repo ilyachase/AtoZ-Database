@@ -138,12 +138,14 @@ class AjaxController extends Controller
 	 */
 	public function actionReportInfo( $id )
 	{
-		$report = Reports::findOne( $id );
-		if ( !$report )
+		$model = Reports::findOne( $id );
+		if ( !$model )
 			throw new HttpException( 404, "Report with such id not found." );
 
-		$statusHtml = $report->getStatusHtml();
-		$report = $report->toArray();
+		$statusHtml = $model->getStatusHtml();
+		$report = $model->toArray();
+		$report['count_done'] = $model->getCountDone();
+		$report['count_all'] = $model->count_all !== null ? $model->count_all : 'Unknown';
 		$report['status_html'] = $statusHtml;
 
 		return $report;

@@ -4,17 +4,14 @@ namespace app\commands;
 
 use app\models\activerecord\Reports;
 use app\models\Client;
-use yii\helpers\FileHelper;
+use yii\base\Exception;
 
 class ReportController extends BaseController
 {
-	const PAGES_LIMIT = 4;
+	const PAGES_LIMIT = 5;
 
-	const CSV_ROW_COMPANY = 'Business Name';
-	const CSV_ROW_WEBSITE = 'Website';
-	const CSV_ROW_PHONE = 'Phone';
-	const CSV_ROW_CITY = 'Physical City';
-	const CSV_ROW_STATE = 'Physical State';
+	const RESPONSE_PER_PAGE_ITEMS_COUNT = 25;
+
 	const CSV_ROW_EX_TITLE_I = 'Executive Title ';
 	const CSV_ROW_EX_FIRSTNAME_I = 'Executive First Name ';
 	const CSV_ROW_EX_LASTNAME_I = 'Executive Last Name ';
@@ -22,16 +19,8 @@ class ReportController extends BaseController
 
 	const EX_MAX_I = 20;
 
-	private $_finalCsvColumnsTitle = [
-		self::CSV_ROW_COMPANY,
-		self::CSV_ROW_WEBSITE,
-		self::CSV_ROW_PHONE,
-		self::CSV_ROW_CITY,
-		self::CSV_ROW_STATE,
-		'Executive Title',
-		'Executive Name',
-		'Executive Email',
-	];
+	/** @var resource */
+	private $_finalCsvHandle;
 
 	public function actionIndex()
 	{
@@ -59,11 +48,11 @@ class ReportController extends BaseController
 		$report->save();
 		$tr->commit();
 
+		$this->_finalCsvHandle = fopen( $report->getCsvPath(), 'a' );
 		self::log( "Started working on report $report->filename" );
 
 		try
 		{
-			$this->_getParts( $report );
 			$this->_generateReport( $report );
 			$this->_sendReport( $report );
 		}
@@ -74,8 +63,12 @@ class ReportController extends BaseController
 			\Yii::$app->db->open();
 			$report->save();
 
+			$this->_gracefulFinishWork();
+
 			throw $e;
 		}
+
+		$this->_gracefulFinishWork();
 
 		self::log( "", true, true );
 	}
@@ -103,189 +96,69 @@ class ReportController extends BaseController
 	 * @throws \yii\db\Exception
 	 * @throws \yii\web\HttpException
 	 */
-	private function _getParts( Reports $report )
+	private function _generateReport( Reports $report )
 	{
-		if ( $report->status >= Reports::STATUS_PROCESSING_GOT_PARTS )
+		if ( $report->status >= Reports::STATUS_PROCESSING )
 			return;
 
-		self::log( "Entering 'getting parts' step." );
+		self::log( "Entering 'getting data' step." );
 
-		$params = $report->getParams();
+		$report->status = Reports::STATUS_PROCESSING;
+		$report->save();
 
 		$client = new Client();
 		$client->checkLogin();
-
+		$params = $report->getParams();
 		$client->getKeywordsAutocomplete( $params->keyword );
-		$data = $client->getSearchResult( $params->keywords, 1 );
 
-		self::log( "Getting keywords" );
-		$keywords = $this->_extractKeywords( $data );
+		if ( $report->count_pages_done === null )
+			$report->count_pages_done = 1;
 
-		$lastI = 1;
-		for ( $i = 2; $i <= $data->totalpages; $i++ )
+		$searchResult = null;
+		do
 		{
-			if ( $i % self::PAGES_LIMIT == 0 )
+			if ( $searchResult === null )
 			{
-				if ( $report->isHavePart( $lastI, $i ) )
+				$searchResult = $client->getSearchResult( $params->keywords, $report->count_pages_done );
+				$keywords = $this->_extractKeywords( $searchResult );
+				if ( $report->count_all === null )
 				{
-					if ( count( $keywords ) )
-						$keywords = [];
-
-					self::log( "Already got part {$lastI}_{$i}, continue..." );
-					$lastI = $i;
-				}
-				else
-				{
-					$i = $lastI + 1;
-					break;
-				}
-			}
-		}
-
-		for ( ; $i <= $data->totalpages; $i++ )
-		{
-			$keywords = array_merge( $keywords, $this->_extractKeywords( $client->getSearchResult( $params->keywords, $i ) ) );
-
-			if ( $i % self::PAGES_LIMIT == 0 )
-			{
-				$emails = $client->extractEmails( $keywords, $report );
-				$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i, $emails );
-				self::log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i (of $data->totalpages total)." );
-				$lastI = $i;
-				$keywords = [];
-			}
-		}
-
-		if ( count( $keywords ) )
-		{
-			$emails = $client->extractEmails( $keywords, $report );
-			$fn = $report->saveCsvReportPart( $client->getCsvReport( $keywords ), $lastI, $i, $emails );
-			self::log( "Got " . $this->_countLines( $fn ) . " lines for $lastI - $i" );
-		}
-
-		$report->status = Reports::STATUS_PROCESSING_GOT_PARTS;
-		\Yii::$app->db->close();
-		\Yii::$app->db->open();
-		$report->save();
-	}
-
-	/**
-	 * @param Reports $report
-	 *
-	 * @throws \yii\base\InvalidConfigException
-	 */
-	private function _generateReport( Reports $report )
-	{
-		if ( $report->status >= Reports::STATUS_PROCESSING_GENERATED_FINAL_CSV )
-			return;
-
-		self::log( "Entering 'generate report' step." );
-
-		$finalCsvHandle = fopen( $report->getCsvPath(), 'w' );
-		$files = FileHelper::findFiles( $report->getCreateReportPartsDir() );
-		natsort( $files );
-
-		$emails = [];
-		$emailsFilename = null;
-		if ( ( $key = array_search( $report->getEmailsFilename(), $files ) ) !== false )
-		{
-			$emailsFilename = $files[$key];
-			$emails = unserialize( file_get_contents( $emailsFilename ) );
-		}
-
-		fputcsv( $finalCsvHandle, $this->_finalCsvColumnsTitle );
-		foreach ( $files as $file )
-		{
-			if ( $file == $report->getEmailsFilename() )
-				continue;
-
-			self::log( "File: $file" );
-			$partSourceHandle = fopen( $file, 'r' );
-
-			$columns = fgetcsv( $partSourceHandle );
-			while ( ( $data = fgetcsv( $partSourceHandle ) ) !== false )
-			{
-				$namedSourceRow = [];
-				foreach ( $columns as $k => $column )
-				{
-					$namedSourceRow[$column] = $data[$k];
-				}
-
-				$c = 0;
-				for ( $i = 1; $i <= self::EX_MAX_I; $i++ )
-				{
-					if ( $namedSourceRow[self::CSV_ROW_EX_FIRSTNAME_I . $i] )
-					{
-						$rowToInsert = [
-							$namedSourceRow[self::CSV_ROW_COMPANY],
-							$namedSourceRow[self::CSV_ROW_WEBSITE],
-							$namedSourceRow[self::CSV_ROW_PHONE],
-							$namedSourceRow[self::CSV_ROW_CITY],
-							$namedSourceRow[self::CSV_ROW_STATE],
-							$namedSourceRow[self::CSV_ROW_EX_TITLE_I . $i],
-							$namedSourceRow[self::CSV_ROW_EX_FIRSTNAME_I . $i] . ' ' . $namedSourceRow[self::CSV_ROW_EX_LASTNAME_I . $i],
-						];
-
-						if ( isset( $emails[$namedSourceRow[self::CSV_ROW_KEYWORD]] ) && isset( $emails[$namedSourceRow[self::CSV_ROW_KEYWORD]][$i - 1] ) )
-						{
-							$rowToInsert[] = $emails[$namedSourceRow[self::CSV_ROW_KEYWORD]][$i - 1];
-						}
-						else
-						{
-							$rowToInsert[] = '';
-						}
-
-						fputcsv( $finalCsvHandle, $rowToInsert );
-
-						$report->addJsonEntity( $rowToInsert );
-
-						self::log( '.', false, true );
-						$c++;
-					}
-				}
-
-				if ( $c )
-				{
-					$report->count += $c;
+					$report->count_all = $searchResult->totalrecords;
 					$report->save();
 				}
 			}
+			else
+			{
+				$keywords = $this->_extractKeywords( $client->getSearchResult( $params->keywords, $report->count_pages_done ) );
+			}
 
-			fclose( $partSourceHandle );
-			unlink( $file );
-			self::log( '', true, true );
+			if ( !$searchResult || !$searchResult->totalpages )
+			{
+				throw new Exception( "Coudln't get proper searchResult:\n" . var_export( $searchResult, true ) );
+			}
+
+			$details = $client->getDetailsByKeywords( $keywords, $report );
+			if ( $report->count_pages_done == 1 )
+			{
+				fputcsv( $this->_finalCsvHandle, \app\models\report\Details::GetCsvTitileColumns() );
+			}
+
+			foreach ( $details as $detail )
+			{
+				foreach ( $detail->getCsvRows() as $row )
+				{
+					fputcsv( $this->_finalCsvHandle, $row );
+					$report->addJsonEntity( $row );
+				}
+			}
+
+			self::log( "Done page {$report->count_pages_done} of {$searchResult->totalpages}." );
+			$report->count_pages_done++;
+			\Yii::$app->db->close();
+			\Yii::$app->db->open();
+			$report->save();
 		}
-
-		if ( $emailsFilename )
-			unlink( $emailsFilename );
-
-		rmdir( $report->getCreateReportPartsDir( false ) );
-
-		fclose( $finalCsvHandle );
-
-		$report->status = Reports::STATUS_PROCESSING_GENERATED_FINAL_CSV;
-		$report->created = \Yii::$app->formatter->asDatetime( time(), 'php:Y-m-d H:i:s' );
-		$report->save();
-	}
-
-	/**
-	 * @param string $filepath
-	 *
-	 * @return int
-	 */
-	private function _countLines( $filepath )
-	{
-		$linecount = 0;
-		$handle = fopen( $filepath, "r" );
-
-		while ( !feof( $handle ) )
-		{
-			fgets( $handle );
-			$linecount++;
-		}
-		fclose( $handle );
-
-		return $linecount;
+		while ( $report->count_pages_done <= $searchResult->totalpages );
 	}
 
 	/**
@@ -305,7 +178,12 @@ class ReportController extends BaseController
 		{
 			$report->status = Reports::STATUS_FINISHED;
 			$report->save();
-			self::log( "Mail sended to $report->email" );
+			self::log( "Mail sent to $report->email" );
 		}
+	}
+
+	private function _gracefulFinishWork()
+	{
+		fclose( $this->_finalCsvHandle );
 	}
 }

@@ -11,7 +11,8 @@ use yii\base\Exception;
  * @property string $filename
  * @property string $email
  * @property integer $status
- * @property integer $count
+ * @property integer $count_all
+ * @property integer $count_pages_done
  * @property string $created
  * @property integer $repeat_in_days
  * @property integer $in_work
@@ -19,15 +20,13 @@ use yii\base\Exception;
 class Reports extends \yii\db\ActiveRecord
 {
 	const STATUS_JUST_CREATED = 0;
-	const STATUS_PROCESSING_GOT_PARTS = 1;
-	const STATUS_PROCESSING_GENERATED_FINAL_CSV = 2;
-	const STATUS_FINISHED = 3;
+	const STATUS_PROCESSING = 1;
+	const STATUS_FINISHED = 2;
 
 	private $_statusTexts = [
 		self::STATUS_JUST_CREATED                   => '<span class="text-primary">Just created (waiting to get in work)</span>',
-		self::STATUS_PROCESSING_GOT_PARTS           => '<span class="text-warning">Processing</span>',
-		self::STATUS_PROCESSING_GENERATED_FINAL_CSV => '<span class="text-warning">Processing</span>',
-		self::STATUS_FINISHED                       => '<span class="text-success">Finished</span>',
+		self::STATUS_PROCESSING                     => '<span class="text-warning">Processing</span>',
+		self::STATUS_FINISHED                       => '<span class="text-success">Finished (sended)</span>',
 	];
 
 	/**
@@ -46,7 +45,7 @@ class Reports extends \yii\db\ActiveRecord
 		return [
 			[ [ 'filename', 'email' ], 'required' ],
 			[ [ 'params' ], 'string' ],
-			[ [ 'status', 'count', 'repeat_in_days' ], 'integer' ],
+			[ [ 'status', 'count_all', 'count_pages_done', 'repeat_in_days' ], 'integer' ],
 			[ [ 'in_work' ], 'boolean' ],
 			[ [ 'created', ], 'safe' ],
 			[ [ 'filename', 'email' ], 'string', 'max' => 255 ],
@@ -239,5 +238,22 @@ class Reports extends \yii\db\ActiveRecord
 	private function _getFilepathForPath( $lastI, $i )
 	{
 		return $this->getCreateReportPartsDir() . DS . $lastI . '_' . $i . '.csv';
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCountDone()
+	{
+		if ( $this->count_pages_done === null )
+			return 0;
+
+		$countDone = ( $this->count_pages_done - 1 ) * \app\commands\ReportController::RESPONSE_PER_PAGE_ITEMS_COUNT;
+		if ( $this->count_all && $countDone > $this->count_all )
+		{
+			return $this->count_all;
+		}
+
+		return $countDone;
 	}
 }

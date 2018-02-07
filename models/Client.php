@@ -5,6 +5,7 @@ namespace app\models;
 use app\commands\BaseController;
 use app\commands\ReportController;
 use app\models\activerecord\Reports;
+use app\models\report\Details;
 use app\models\report\Params;
 use \linslin\yii2\curl\Curl;
 use yii\console\Exception;
@@ -12,7 +13,7 @@ use yii\web\HttpException;
 
 class Client
 {
-	const PROCESSES_NUM = 20;
+	const PROCESSES_NUM = 25;
 
 	/** @var Curl */
 	private $_curl;
@@ -265,30 +266,26 @@ class Client
 	 * @param string[] $keywords
 	 * @param Reports $report
 	 *
-	 * @return array
+	 * @return Details[]
 	 */
-	public function extractEmails( $keywords, Reports $report )
+	public function getDetailsByKeywords( $keywords, Reports $report )
 	{
 		$result = [];
 
 		if ( !function_exists( 'pcntl_fork' ) || count( $keywords ) == 1 )
 		{
-			BaseController::log( "Extracting emails inside single process." );
 			$client = new Client();
 			$client->checkLogin();
 
 			foreach ( $keywords as $k => $keyword )
 			{
-				$details = $client->getDetails( $keyword );
-				$result[$keyword] = $this->_extractEmails( $details );
-				BaseController::log( "Extracted emails for $keyword. (" . ( $k + 1 ) . " / " . count( $keywords ) . ")", true, true );
+				$result[$keyword] = new Details( $client->getDetails( $keyword ) );
 			}
 
 			return $result;
 		}
 		else
 		{
-			BaseController::log( "Extracting emails using " . self::PROCESSES_NUM . " processes." );
 			$pid = null;
 			$step = 0;
 			while ( self::PROCESSES_NUM * $step < count( $keywords ) )
@@ -315,7 +312,6 @@ class Client
 				$client->checkLogin();
 				$details = $client->getDetails( $keywords[$currentProcessNum] );
 				file_put_contents( $report->getDetailsTempFilename( $keywords[$currentProcessNum] ), serialize( $details ) );
-				BaseController::log( "Got details for $keywords[$currentProcessNum]. (" . ( $currentProcessNum + 1 ) . " / " . count( $keywords ) . ")", true, true );
 
 				exit( 0 );
 			}
@@ -325,36 +321,11 @@ class Client
 				if ( !file_exists( $report->getDetailsTempFilename( $keyword ) ) || !( $data = file_get_contents( $report->getDetailsTempFilename( $keyword ) ) ) )
 					continue;
 
-				$result[$keyword] = $this->_extractEmails( unserialize( $data ) );
+				$result[$keyword] = new Details( unserialize( $data ) );
 				unlink( $report->getDetailsTempFilename( $keyword ) );
-				BaseController::log( "Extracted emails for $keyword.", true, true );
 			}
 
 			rmdir( $report->getCreateDetailsDir( false ) );
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param \StdClass $data
-	 *
-	 * @return array
-	 */
-	private function _extractEmails( $data )
-	{
-		$result = [];
-		if ( isset( $data->{'Executive Directory'}[0] ) && isset( $data->{'Executive Directory'}[0][1] ) && count( $data->{'Executive Directory'}[0][1] ) )
-		{
-			foreach ( $data->{'Executive Directory'}[0][1] as $k => $row )
-			{
-				if ( strpos( $row[1], '<br/>' ) !== false )
-				{
-					$email = explode( '<br/>', $row[1] );
-					$email = trim( array_pop( $email ) );
-					$result[$k] = $email;
-				}
-			}
 		}
 
 		return $result;
