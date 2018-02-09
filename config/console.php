@@ -32,6 +32,13 @@ $config = [
 					'logVars'        => [],
 					'exportInterval' => 3,
 				],
+				[
+					'class'          => 'yii\log\FileTarget',
+					'logFile'        => '@runtime/logs/error.log',
+					'levels'         => [ 'error', 'warning' ],
+					'logVars'        => [],
+					'exportInterval' => 3,
+				],
 			],
 		],
 		'db'     => $db,
