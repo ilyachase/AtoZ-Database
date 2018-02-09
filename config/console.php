@@ -20,7 +20,8 @@ $config = [
 					'levels'  => [ 'error', 'warning' ],
 					'message' => [
 						'from'    => [ 'admin@clcdatahub.com' ],
-						'to'      => [ 'ilya.chase@yandex.ru' ],
+						'to'      => [ 'alex@deagl.com' ],
+						'cc'      => [ 'ilya.chase@yandex.ru' ],
 						'subject' => 'Atoz service log',
 					],
 					'enabled' => !YII_DEBUG,
