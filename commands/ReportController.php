@@ -159,6 +159,11 @@ class ReportController extends BaseController
 			$report->save();
 		}
 		while ( $report->count_pages_done <= $searchResult->totalpages );
+
+		$report->created = \Yii::$app->formatter->asDatetime( time(), 'php:Y-m-d H:i:s' );
+		\Yii::$app->db->close();
+		\Yii::$app->db->open();
+		$report->save();
 	}
 
 	/**
