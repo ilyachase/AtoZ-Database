@@ -61,7 +61,7 @@ class BaseController extends Controller
 	public static function log( $string, $eol = true, $withoutTrace = false )
 	{
 		if ( !$withoutTrace )
-			\Yii::trace( $string, __METHOD__ );
+			\Yii::trace( $string );
 
 		if ( self::$_Debug )
 			Console::stdout( "$string" . ( $eol ? "\n" : "" ) );
