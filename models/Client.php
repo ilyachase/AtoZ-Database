@@ -321,7 +321,14 @@ class Client
 				if ( !file_exists( $report->getDetailsTempFilename( $keyword ) ) || !( $data = file_get_contents( $report->getDetailsTempFilename( $keyword ) ) ) )
 					continue;
 
-				$result[$keyword] = new Details( unserialize( $data ) );
+				try
+				{
+					$result[$keyword] = new Details( unserialize( $data ) );
+				}
+				catch ( \yii\base\Exception $e )
+				{
+					\Yii::error( "Can't get details wor keyword $keyword. Curl details:" . var_export( $this->_curl, true ) );
+				}
 				unlink( $report->getDetailsTempFilename( $keyword ) );
 			}
 

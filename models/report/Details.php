@@ -2,6 +2,8 @@
 
 namespace app\models\report;
 
+use yii\base\Exception;
+
 class Details
 {
 	/** @var string */
@@ -36,11 +38,13 @@ class Details
 	 * Details constructor.
 	 *
 	 * @param \stdClass $jsonObject
+	 *
+	 * @throws Exception
 	 */
 	public function __construct( $jsonObject )
 	{
 		if ( !$jsonObject->Overview )
-			\Yii::error( "Invalid json object:\n" . var_export( $jsonObject, true ) );
+			throw new Exception( "Invalid json object:\n" . var_export( $jsonObject, true ) );
 
 		foreach ( $jsonObject->Overview as $k => $field )
 		{
