@@ -203,7 +203,7 @@ class Reports extends \yii\db\ActiveRecord
 		$dirname = $this->getCreateReportDir() . DS . 'details';
 
 		if ( $create && !file_exists( $dirname ) )
-			mkdir( $dirname );
+			@mkdir( $dirname );
 
 		return $dirname;
 	}

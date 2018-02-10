@@ -325,7 +325,7 @@ class Client
 				unlink( $report->getDetailsTempFilename( $keyword ) );
 			}
 
-			rmdir( $report->getCreateDetailsDir( false ) );
+			@rmdir( $report->getCreateDetailsDir( false ) );
 		}
 
 		return $result;

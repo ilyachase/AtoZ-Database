@@ -39,6 +39,9 @@ class Details
 	 */
 	public function __construct( $jsonObject )
 	{
+		if ( !$jsonObject->Overview )
+			\Yii::error( "Invalid json object:\n" . var_export( $jsonObject, true ) );
+
 		foreach ( $jsonObject->Overview as $k => $field )
 		{
 			switch ( $field[0] )
