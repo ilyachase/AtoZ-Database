@@ -267,10 +267,12 @@ class Client
 	 * @param Reports $report
 	 *
 	 * @return Details[]
+	 * @throws \yii\base\Exception
 	 */
 	public function getDetailsByKeywords( $keywords, Reports $report )
 	{
 		$result = [];
+		$keywords = array_unique( $keywords );
 
 		if ( !function_exists( 'pcntl_fork' ) || count( $keywords ) == 1 )
 		{
@@ -327,9 +329,9 @@ class Client
 				}
 				catch ( \yii\base\Exception $e )
 				{
-					\Yii::error( "Can't get details wor keyword $keyword. Curl details:" . var_export( $this->_curl, true ) );
+					\Yii::trace( "Can't get details wor keyword $keyword. Curl details:" . var_export( $this->_curl, true ) );
 				}
-				unlink( $report->getDetailsTempFilename( $keyword ) );
+				@unlink( $report->getDetailsTempFilename( $keyword ) );
 			}
 
 			@rmdir( $report->getCreateDetailsDir( false ) );
